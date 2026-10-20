@@ -150,6 +150,7 @@ class _LessonScreenState extends State<LessonScreen> {
     switch (exercise['type']) {
       case 'multipleChoice':
         return _MultipleChoice(
+          key: ValueKey(_currentIndex),
           exercise: exercise,
           selectedAnswer: _selectedAnswer,
           answered: _answered,
@@ -163,6 +164,7 @@ class _LessonScreenState extends State<LessonScreen> {
         );
       case 'tapToBuild':
         return _TapToBuild(
+          key: ValueKey(_currentIndex),
           exercise: exercise,
           answered: _answered,
           onAnswer: (correct) {
@@ -174,6 +176,7 @@ class _LessonScreenState extends State<LessonScreen> {
         );
       case 'fillBlank':
         return _FillBlank(
+          key: ValueKey(_currentIndex),
           exercise: exercise,
           answered: _answered,
           onAnswer: (correct) {
@@ -185,6 +188,7 @@ class _LessonScreenState extends State<LessonScreen> {
         );
       case 'conjugationTable':
         return _ConjugationTable(
+          key: ValueKey(_currentIndex),
           exercise: exercise,
           answered: _answered,
           onAnswer: (correct) {
