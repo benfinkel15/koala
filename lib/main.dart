@@ -11,10 +11,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    AuthService.firebaseReady = true;
+    final opts = DefaultFirebaseOptions.currentPlatform;
+    if (opts.apiKey != 'REPLACE_WITH_API_KEY') {
+      await Firebase.initializeApp(options: opts);
+      AuthService.firebaseReady = true;
+    }
   } catch (_) {
     // Firebase not configured yet — run `flutterfire configure` to set up
   }
