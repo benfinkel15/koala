@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/services/progress_service.dart';
+import 'package:koala/services/streak_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -12,11 +13,14 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   int _totalXp = 0;
   int _lessonsCompleted = 0;
+  int _currentStreak = 0;
+  int _longestStreak = 0;
 
   @override
   void initState() {
     super.initState();
     _loadStats();
+    _loadStreak();
   }
 
   Future<void> _loadStats() async {
@@ -29,6 +33,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         _totalXp = xp;
         _lessonsCompleted = progress.length;
+      });
+    }
+  }
+
+  Future<void> _loadStreak() async {
+    final streak = await StreakService.getStreak();
+    if (mounted) {
+      setState(() {
+        _currentStreak = streak['currentDays'] as int? ?? 0;
+        _longestStreak = streak['longestDays'] as int? ?? 0;
       });
     }
   }
@@ -56,7 +70,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Text('Ben', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 32),
-          _StatRow(icon: Icons.local_fire_department, color: AppColors.streakOrange, label: 'Day Streak', value: '3'),
+          _StatRow(icon: Icons.local_fire_department, color: AppColors.streakOrange, label: 'Day Streak', value: '$_currentStreak'),
+          _StatRow(icon: Icons.whatshot, color: AppColors.streakOrange, label: 'Longest Streak', value: '$_longestStreak'),
           _StatRow(icon: Icons.star, color: AppColors.xpGold, label: 'Total XP', value: '$_totalXp'),
           _StatRow(icon: Icons.emoji_events, color: AppColors.primary, label: 'Level', value: '$level'),
           _StatRow(icon: Icons.check_circle, color: AppColors.correct, label: 'Lessons Completed', value: '$_lessonsCompleted'),

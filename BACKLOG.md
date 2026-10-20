@@ -11,14 +11,6 @@ _(none)_
 
 ## To Do
 
-### 5. Streak system
-- Track daily practice in Hive box `'streak'`
-- Fields: `currentDays`, `longestDays`, `lastCompletedDate` (ISO date string, local timezone)
-- After any lesson is completed: check if today's date != lastCompletedDate, if so increment streak
-- If more than 1 day has passed since lastCompletedDate: reset streak to 1
-- Show live streak count in home screen AppBar (currently hardcoded to 3)
-- Show streak history on profile screen
-
 ### 6. Spaced repetition review screen
 - Add "Review" tab between Learn and Vocab
 - Pull vocab items from completed lessons (same source as vocab bank)
@@ -42,6 +34,14 @@ _(none)_
 ---
 
 ## Completed
+
+### ✅ 5. Streak system
+- Track daily practice in Hive box `'streak'`
+- Fields: `currentDays`, `longestDays`, `lastCompletedDate` (ISO date string, local timezone)
+- After any lesson is completed: check if today's date != lastCompletedDate, if so increment streak
+- If more than 1 day has passed since lastCompletedDate: reset streak to 1
+- Show live streak count in home screen AppBar (previously hardcoded to 3)
+- Show streak history on profile screen (current streak + longest streak)
 
 ### ✅ 4. Lesson progress tracking
 - Track which lessons the user has completed and their star rating (1–3 stars based on mistakes)

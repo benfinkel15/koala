@@ -4,6 +4,7 @@ import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/content/german/curriculum.dart';
 import 'package:koala/services/curriculum_generator.dart';
 import 'package:koala/services/progress_service.dart';
+import 'package:koala/services/streak_service.dart';
 
 class LessonScreen extends StatefulWidget {
   final String lessonId;
@@ -75,6 +76,7 @@ class _LessonScreenState extends State<LessonScreen> {
       stars: stars,
       xp: _xp,
     );
+    await StreakService.recordPractice();
     if (!mounted) return;
     showDialog(
       context: context,

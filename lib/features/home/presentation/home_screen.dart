@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/services/curriculum_generator.dart';
 import 'package:koala/services/progress_service.dart';
+import 'package:koala/services/streak_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,12 +19,14 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _error;
   Map<String, int> _progressStars = {};
   int _totalXp = 0;
+  int _currentStreak = 0;
 
   @override
   void initState() {
     super.initState();
     _restoreLanguage();
     _loadProgress();
+    _loadStreak();
   }
 
   Future<void> _loadProgress() async {
@@ -39,6 +42,15 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _progressStars = stars;
         _totalXp = xp;
+      });
+    }
+  }
+
+  Future<void> _loadStreak() async {
+    final streak = await StreakService.getStreak();
+    if (mounted) {
+      setState(() {
+        _currentStreak = streak['currentDays'] as int? ?? 0;
       });
     }
   }
@@ -158,8 +170,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 const Icon(Icons.local_fire_department,
                     color: AppColors.streakOrange, size: 20),
                 const SizedBox(width: 4),
-                const Text('3',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('$_currentStreak',
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ),
