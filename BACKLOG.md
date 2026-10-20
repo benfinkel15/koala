@@ -11,32 +11,6 @@ _(none)_
 
 ## To Do
 
-### 1. Vocabulary Bank tab
-- Add a 3rd tab to the bottom nav (between Learn and Profile): "Vocab" with a book icon
-- Create `lib/features/vocab/presentation/vocab_screen.dart`
-- The screen shows vocabulary grouped by lesson, but only lessons the user has completed
-- For now, "completed" means the lesson exists in a hardcoded set: ['u1_l1', 'u1_l2'] (we'll wire real progress later)
-- Extract vocab from `lib/content/german/vocab_bank.dart` — create this new file with vocab for all 15 lessons
-- Each vocab entry: German word, English translation, gender (der/die/das/— for phrases), part of speech
-- UI: searchable list, grouped by unit with expandable sections, each word shows German + English + gender chip
-- Tapping a word shows a detail card with example sentence from the lesson
-
-### 2. Conversation Practice tab
-- Add a 4th tab: "Chat" with a chat bubble icon
-- Create `lib/features/conversation/presentation/conversation_screen.dart`
-- On first open, show a scenario picker: "Café", "Meeting someone", "At the market", "Free chat"
-- Each scenario sets a system prompt for the AI: e.g. for "Café", the AI plays a German waiter
-- Use the Claude API directly via HTTP (package:http is already a transitive dep — add it explicitly to pubspec.yaml)
-- API endpoint: POST https://api.anthropic.com/v1/messages
-- Required headers: `x-api-key`, `anthropic-version: 2023-06-01`, `content-type: application/json`
-- Model: claude-haiku-4-5-20251001 (fast and cheap for conversation)
-- The API key is stored in SharedPreferences under key `anthropic_api_key`
-- On first open (if no key stored), show a dialog asking user to enter their Anthropic API key
-- The AI always responds in German, then provides an English translation in italics below
-- The AI gently corrects grammar mistakes inline: if the user writes "Ich bin hungrig haben" the AI responds naturally but also notes the correction
-- Message bubbles: user on right (green), AI on left (grey)
-- Add a settings icon in the AppBar to clear/change the API key
-
 ### 3. AI content generation for new languages
 - Add a language selector to the home screen AppBar (currently hardcoded to German)
 - Languages to support: German (already done), Spanish, French, Italian, Japanese
@@ -85,4 +59,27 @@ _(none)_
 ---
 
 ## Completed
-_(none yet)_
+
+### ✅ 2. Conversation Practice tab
+- Added Chat tab (4th tab) with chat bubble icon to bottom nav
+- Created `lib/features/conversation/presentation/conversation_screen.dart`
+- Scenario picker: "Café", "Meeting someone", "At the market", "Free chat"
+- Each scenario sets a German-speaking system prompt for the AI
+- Uses Claude API (claude-haiku-4-5-20251001) via HTTP with explicit `http` package dependency
+- API key stored/retrieved from SharedPreferences under `anthropic_api_key`
+- API key dialog shown on first open; settings icon in AppBar to change key
+- AI responds in German with English translation in italics below
+- AI gently corrects grammar mistakes inline
+- Message bubbles: user on right (green), AI on left (grey)
+
+### ✅ 1. Vocabulary Bank tab
+- Added a 3rd tab to the bottom nav (between Learn and Profile): "Vocab" with a book icon
+- Created `lib/features/vocab/presentation/vocab_screen.dart`
+- Created `lib/content/german/vocab_bank.dart` with vocab for all 15 lessons (5–7 entries each)
+- Each vocab entry: German word, English translation, gender (der/die/das/— for phrases), part of speech, example sentence
+- UI: searchable list, grouped by unit with expandable sections, each word shows German + English + gender chip
+- Tapping a word shows a detail dialog with example sentence from the lesson
+
+### ✅ 2. GitHub Pages deployment
+- Created `.github/workflows/deploy.yml` — on every push to main, builds Flutter web and deploys to `gh-pages` branch
+- Added live URL note to README.md

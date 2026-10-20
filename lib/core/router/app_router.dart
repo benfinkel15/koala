@@ -1,8 +1,10 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:koala/features/conversation/presentation/conversation_screen.dart';
 import 'package:koala/features/home/presentation/home_screen.dart';
 import 'package:koala/features/lesson/presentation/lesson_screen.dart';
 import 'package:koala/features/profile/presentation/profile_screen.dart';
+import 'package:koala/features/vocab/presentation/vocab_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/home',
@@ -13,6 +15,14 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/home',
           builder: (context, state) => const HomeScreen(),
+        ),
+        GoRoute(
+          path: '/vocab',
+          builder: (context, state) => const VocabScreen(),
+        ),
+        GoRoute(
+          path: '/chat',
+          builder: (context, state) => const ConversationScreen(),
         ),
         GoRoute(
           path: '/profile',
@@ -52,11 +62,17 @@ class _MainScaffoldState extends State<MainScaffold> {
             case 0:
               context.go('/home');
             case 1:
+              context.go('/vocab');
+            case 2:
+              context.go('/chat');
+            case 3:
               context.go('/profile');
           }
         },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: 'Learn'),
+          NavigationDestination(icon: Icon(Icons.menu_book), label: 'Vocab'),
+          NavigationDestination(icon: Icon(Icons.chat_bubble), label: 'Chat'),
           NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
