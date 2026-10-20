@@ -1,0 +1,65 @@
+import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
+import 'package:koala/features/home/presentation/home_screen.dart';
+import 'package:koala/features/lesson/presentation/lesson_screen.dart';
+import 'package:koala/features/profile/presentation/profile_screen.dart';
+
+final appRouter = GoRouter(
+  initialLocation: '/home',
+  routes: [
+    ShellRoute(
+      builder: (context, state, child) => MainScaffold(child: child),
+      routes: [
+        GoRoute(
+          path: '/home',
+          builder: (context, state) => const HomeScreen(),
+        ),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const ProfileScreen(),
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/lesson/:lessonId',
+      builder: (context, state) => LessonScreen(
+        lessonId: state.pathParameters['lessonId']!,
+      ),
+    ),
+  ],
+);
+
+class MainScaffold extends StatefulWidget {
+  final Widget child;
+  const MainScaffold({super.key, required this.child});
+
+  @override
+  State<MainScaffold> createState() => _MainScaffoldState();
+}
+
+class _MainScaffoldState extends State<MainScaffold> {
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: widget.child,
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) {
+          setState(() => _currentIndex = index);
+          switch (index) {
+            case 0:
+              context.go('/home');
+            case 1:
+              context.go('/profile');
+          }
+        },
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.home), label: 'Learn'),
+          NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
+        ],
+      ),
+    );
+  }
+}

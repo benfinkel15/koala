@@ -1,0 +1,670 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:koala/core/constants/app_colors.dart';
+import 'package:koala/content/german/curriculum.dart';
+
+class LessonScreen extends StatefulWidget {
+  final String lessonId;
+  const LessonScreen({super.key, required this.lessonId});
+
+  @override
+  State<LessonScreen> createState() => _LessonScreenState();
+}
+
+class _LessonScreenState extends State<LessonScreen> {
+  int _currentIndex = 0;
+  String? _selectedAnswer;
+  bool _answered = false;
+  bool _lastCorrect = false;
+  int _hearts = 5;
+  int _xp = 0;
+
+  List<Map<String, dynamic>> get _exercises =>
+      lessonExercises[widget.lessonId] ?? [];
+
+  void _onAnswer(bool correct) {
+    if (_answered) return;
+    setState(() {
+      _answered = true;
+      _lastCorrect = correct;
+      if (correct) {
+        _xp += 10;
+      } else {
+        _hearts = (_hearts - 1).clamp(0, 5);
+      }
+    });
+  }
+
+  void _onNext() {
+    if (_currentIndex < _exercises.length - 1) {
+      setState(() {
+        _currentIndex++;
+        _selectedAnswer = null;
+        _answered = false;
+        _lastCorrect = false;
+      });
+    } else {
+      _showComplete();
+    }
+  }
+
+  void _showComplete() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: const Text('Lesson Complete! 🎉'),
+        content: Text('You earned $_xp XP!'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              context.pop();
+              context.go('/home');
+            },
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_exercises.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(leading: BackButton(onPressed: () => context.go('/home'))),
+        body: const Center(child: Text('No exercises found for this lesson.')),
+      );
+    }
+
+    final exercise = _exercises[_currentIndex];
+    final progress = (_currentIndex + 1) / _exercises.length;
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.close, color: AppColors.textSecondary),
+          onPressed: () => context.go('/home'),
+        ),
+        title: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(
+            value: progress,
+            minHeight: 10,
+            backgroundColor: Colors.grey[200],
+            valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Row(
+              children: [
+                const Icon(Icons.favorite, color: AppColors.heartRed, size: 20),
+                const SizedBox(width: 4),
+                Text('$_hearts', style: const TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: _buildExercise(exercise),
+            ),
+          ),
+          if (_answered)
+            _AnswerFooter(correct: _lastCorrect, onNext: _onNext),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExercise(Map<String, dynamic> exercise) {
+    switch (exercise['type']) {
+      case 'multipleChoice':
+        return _MultipleChoice(
+          exercise: exercise,
+          selectedAnswer: _selectedAnswer,
+          answered: _answered,
+          onAnswer: (answer, correct) {
+            setState(() => _selectedAnswer = answer);
+            _onAnswer(correct);
+          },
+        );
+      case 'tapToBuild':
+        return _TapToBuild(
+          exercise: exercise,
+          answered: _answered,
+          onAnswer: _onAnswer,
+        );
+      case 'fillBlank':
+        return _FillBlank(
+          exercise: exercise,
+          answered: _answered,
+          onAnswer: _onAnswer,
+        );
+      case 'conjugationTable':
+        return _ConjugationTable(
+          exercise: exercise,
+          answered: _answered,
+          onAnswer: _onAnswer,
+        );
+      default:
+        return Text('Unknown exercise type: ${exercise['type']}');
+    }
+  }
+}
+
+// ─── Multiple Choice ───────────────────────────────────────────────────────
+
+class _MultipleChoice extends StatelessWidget {
+  final Map<String, dynamic> exercise;
+  final String? selectedAnswer;
+  final bool answered;
+  final void Function(String, bool) onAnswer;
+
+  const _MultipleChoice({
+    required this.exercise,
+    required this.selectedAnswer,
+    required this.answered,
+    required this.onAnswer,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final options = List<String>.from(exercise['options']);
+    final correctIndex = exercise['correct'] as int;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Choose the correct answer',
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+        const SizedBox(height: 12),
+        Text(exercise['prompt'],
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 32),
+        ...options.asMap().entries.map((entry) {
+          final i = entry.key;
+          final option = entry.value;
+          Color borderColor = Colors.grey[300]!;
+          Color bgColor = Colors.white;
+
+          if (answered) {
+            if (i == correctIndex) {
+              borderColor = AppColors.correct;
+              bgColor = AppColors.correct.withOpacity(0.1);
+            } else if (option == selectedAnswer) {
+              borderColor = AppColors.incorrect;
+              bgColor = AppColors.incorrect.withOpacity(0.1);
+            }
+          } else if (option == selectedAnswer) {
+            borderColor = AppColors.primary;
+            bgColor = AppColors.primary.withOpacity(0.05);
+          }
+
+          return GestureDetector(
+            onTap: answered ? null : () => onAnswer(option, i == correctIndex),
+            child: Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: bgColor,
+                border: Border.all(color: borderColor, width: 2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(option,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w500)),
+            ),
+          );
+        }),
+      ],
+    );
+  }
+}
+
+// ─── Tap to Build ──────────────────────────────────────────────────────────
+
+class _TapToBuild extends StatefulWidget {
+  final Map<String, dynamic> exercise;
+  final bool answered;
+  final void Function(bool) onAnswer;
+
+  const _TapToBuild(
+      {required this.exercise, required this.answered, required this.onAnswer});
+
+  @override
+  State<_TapToBuild> createState() => _TapToBuildState();
+}
+
+class _TapToBuildState extends State<_TapToBuild> {
+  final List<String> _selected = [];
+  late final List<String> _shuffledTiles;
+
+  @override
+  void initState() {
+    super.initState();
+    _shuffledTiles = List<String>.from(widget.exercise['tiles'])..shuffle();
+  }
+
+  void _tap(String word) {
+    if (widget.answered) return;
+    setState(() => _selected.add(word));
+  }
+
+  void _remove(int i) {
+    if (widget.answered) return;
+    setState(() => _selected.removeAt(i));
+  }
+
+  void _check() {
+    final answer = _selected.join(' ');
+    widget.onAnswer(answer == widget.exercise['target']);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final available =
+        _shuffledTiles.where((t) => !_selected.contains(t)).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Tap the words in the correct order',
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+        const SizedBox(height: 12),
+        Text(widget.exercise['prompt'],
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 32),
+        Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(minHeight: 60),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey[300]!, width: 2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _selected.asMap().entries.map((e) => GestureDetector(
+              onTap: () => _remove(e.key),
+              child: Chip(
+                  label: Text(e.value),
+                  backgroundColor: AppColors.primary.withOpacity(0.15)),
+            )).toList(),
+          ),
+        ),
+        const SizedBox(height: 24),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: available
+              .map((t) => GestureDetector(
+                    onTap: () => _tap(t),
+                    child: Chip(
+                        label: Text(t),
+                        backgroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.grey)),
+                  ))
+              .toList(),
+        ),
+        const SizedBox(height: 24),
+        if (!widget.answered && _selected.isNotEmpty)
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _check,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('Check',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ─── Fill in the Blank ─────────────────────────────────────────────────────
+
+class _FillBlank extends StatefulWidget {
+  final Map<String, dynamic> exercise;
+  final bool answered;
+  final void Function(bool) onAnswer;
+
+  const _FillBlank(
+      {required this.exercise, required this.answered, required this.onAnswer});
+
+  @override
+  State<_FillBlank> createState() => _FillBlankState();
+}
+
+class _FillBlankState extends State<_FillBlank> {
+  final _controller = TextEditingController();
+  bool _isCorrect = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _check() {
+    final answer = _controller.text.trim().toLowerCase();
+    final correct =
+        answer == (widget.exercise['correct'] as String).toLowerCase();
+    setState(() => _isCorrect = correct);
+    widget.onAnswer(correct);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sentence = widget.exercise['sentence'] as String;
+    final hint = widget.exercise['hint'] as String?;
+    final correct = widget.exercise['correct'] as String;
+    final parts = sentence.split('___');
+
+    Color fieldColor = Colors.white;
+    if (widget.answered) {
+      fieldColor = _isCorrect
+          ? AppColors.correct.withOpacity(0.1)
+          : AppColors.incorrect.withOpacity(0.1);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Fill in the blank',
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+        const SizedBox(height: 32),
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            if (parts[0].isNotEmpty)
+              Text(parts[0],
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.bold)),
+            Container(
+              width: 120,
+              height: 48,
+              decoration: BoxDecoration(
+                color: fieldColor,
+                border: Border.all(
+                    color: widget.answered
+                        ? (_isCorrect ? AppColors.correct : AppColors.incorrect)
+                        : AppColors.primary,
+                    width: 2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: widget.answered
+                  ? Center(
+                      child: Text(
+                        _isCorrect ? _controller.text.trim() : correct,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: _isCorrect ? AppColors.correct : AppColors.incorrect,
+                        ),
+                      ),
+                    )
+                  : TextField(
+                      controller: _controller,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                      decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero),
+                      onSubmitted: (_) => _check(),
+                    ),
+            ),
+            if (parts.length > 1 && parts[1].isNotEmpty)
+              Text(parts[1],
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        if (hint != null) ...[
+          const SizedBox(height: 16),
+          Text('Hint: $hint',
+              style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontStyle: FontStyle.italic,
+                  fontSize: 14)),
+        ],
+        const SizedBox(height: 32),
+        if (!widget.answered)
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _check,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('Check',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ─── Conjugation Table ─────────────────────────────────────────────────────
+
+class _ConjugationTable extends StatefulWidget {
+  final Map<String, dynamic> exercise;
+  final bool answered;
+  final void Function(bool) onAnswer;
+
+  const _ConjugationTable(
+      {required this.exercise, required this.answered, required this.onAnswer});
+
+  @override
+  State<_ConjugationTable> createState() => _ConjugationTableState();
+}
+
+class _ConjugationTableState extends State<_ConjugationTable> {
+  late final List<TextEditingController> _controllers;
+
+  @override
+  void initState() {
+    super.initState();
+    final count = (widget.exercise['pronouns'] as List).length;
+    _controllers = List.generate(count, (_) => TextEditingController());
+  }
+
+  @override
+  void dispose() {
+    for (final c in _controllers) c.dispose();
+    super.dispose();
+  }
+
+  void _check() {
+    final answers = List<String>.from(widget.exercise['answers']);
+    bool allCorrect = true;
+    for (int i = 0; i < _controllers.length; i++) {
+      if (_controllers[i].text.trim().toLowerCase() !=
+          answers[i].toLowerCase()) {
+        allCorrect = false;
+        break;
+      }
+    }
+    widget.onAnswer(allCorrect);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final verb = widget.exercise['verb'] as String;
+    final tense = widget.exercise['tense'] as String;
+    final pronouns = List<String>.from(widget.exercise['pronouns']);
+    final answers = List<String>.from(widget.exercise['answers']);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Complete the conjugation table',
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+        const SizedBox(height: 12),
+        Text('$verb — $tense',
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 24),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[200]!),
+          ),
+          child: Column(
+            children: pronouns.asMap().entries.map((entry) {
+              final i = entry.key;
+              final pronoun = entry.value;
+              final isLast = i == pronouns.length - 1;
+              final isCorrect = widget.answered &&
+                  _controllers[i].text.trim().toLowerCase() ==
+                      answers[i].toLowerCase();
+
+              return Container(
+                decoration: BoxDecoration(
+                  border: isLast
+                      ? null
+                      : Border(
+                          bottom:
+                              BorderSide(color: Colors.grey[200]!, width: 1)),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 100,
+                      child: Text(pronoun,
+                          style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500)),
+                    ),
+                    Expanded(
+                      child: widget.answered
+                          ? Text(
+                              answers[i],
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: isCorrect
+                                    ? AppColors.correct
+                                    : AppColors.incorrect,
+                              ),
+                            )
+                          : TextField(
+                              controller: _controllers[i],
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w500),
+                              decoration: InputDecoration(
+                                hintText: '...',
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8)),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                isDense: true,
+                              ),
+                            ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 24),
+        if (!widget.answered)
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _check,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('Check',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ─── Answer Footer ─────────────────────────────────────────────────────────
+
+class _AnswerFooter extends StatelessWidget {
+  final bool correct;
+  final VoidCallback onNext;
+
+  const _AnswerFooter({required this.correct, required this.onNext});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: correct
+          ? AppColors.correct.withOpacity(0.1)
+          : AppColors.incorrect.withOpacity(0.1),
+      padding: const EdgeInsets.all(24),
+      child: Row(
+        children: [
+          Icon(
+              correct ? Icons.check_circle : Icons.cancel,
+              color: correct ? AppColors.correct : AppColors.incorrect,
+              size: 32),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              correct ? 'Correct! +10 XP' : 'Not quite — keep going!',
+              style: TextStyle(
+                color: correct ? AppColors.correct : AppColors.incorrect,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: onNext,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: correct ? AppColors.correct : AppColors.incorrect,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Next',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+}
