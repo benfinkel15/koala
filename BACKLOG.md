@@ -11,16 +11,18 @@ _(none)_
 
 ## To Do
 
-### 8. Firebase Auth
+_(none)_
+
+---
+
+## Completed
+
+### ✅ 8. Firebase Auth
 - Wire up the existing Firebase packages (firebase_core, firebase_auth are in pubspec.yaml)
 - Requires a real Firebase project — add a note in code: "TODO: add google-services.json / GoogleService-Info.plist"
 - For now implement email/password auth screens (login + register)
 - Gate the app behind auth: show login screen if no user, home screen if logged in
 - Sync Hive progress data to Firestore on login
-
----
-
-## Completed
 
 ### ✅ 7. Onboarding flow
 - Show on first launch only (check Hive key `'onboardingComplete'`)

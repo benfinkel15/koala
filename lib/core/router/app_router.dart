@@ -1,6 +1,8 @@
-import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:koala/features/auth/presentation/login_screen.dart';
+import 'package:koala/features/auth/presentation/register_screen.dart';
 import 'package:koala/features/conversation/presentation/conversation_screen.dart';
 import 'package:koala/features/home/presentation/home_screen.dart';
 import 'package:koala/features/lesson/presentation/lesson_screen.dart';
@@ -8,17 +10,40 @@ import 'package:koala/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:koala/features/profile/presentation/profile_screen.dart';
 import 'package:koala/features/review/presentation/review_screen.dart';
 import 'package:koala/features/vocab/presentation/vocab_screen.dart';
+import 'package:koala/services/auth_service.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/home',
   redirect: (context, state) async {
-    if (state.matchedLocation == '/onboarding') return null;
+    final location = state.matchedLocation;
+
+    if (AuthService.firebaseReady) {
+      final isAuthenticated = AuthService.currentUser != null;
+
+      if (!isAuthenticated) {
+        if (location == '/login' || location == '/register') return null;
+        return '/login';
+      }
+
+      if (location == '/login' || location == '/register') return '/home';
+    }
+
+    if (location == '/onboarding') return null;
     final box = await Hive.openBox('settings');
     final done = box.get('onboardingComplete', defaultValue: false) as bool;
     if (!done) return '/onboarding';
+
     return null;
   },
   routes: [
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/register',
+      builder: (context, state) => const RegisterScreen(),
+    ),
     GoRoute(
       path: '/onboarding',
       builder: (context, state) => const OnboardingScreen(),
@@ -91,9 +116,11 @@ class _MainScaffoldState extends State<MainScaffold> {
         },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: 'Learn'),
-          NavigationDestination(icon: Icon(Icons.replay_circle_filled), label: 'Review'),
+          NavigationDestination(
+              icon: Icon(Icons.replay_circle_filled), label: 'Review'),
           NavigationDestination(icon: Icon(Icons.menu_book), label: 'Vocab'),
-          NavigationDestination(icon: Icon(Icons.chat_bubble), label: 'Chat'),
+          NavigationDestination(
+              icon: Icon(Icons.chat_bubble), label: 'Chat'),
           NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
