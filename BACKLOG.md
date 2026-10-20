@@ -11,12 +11,6 @@ _(none)_
 
 ## To Do
 
-### 7. Onboarding flow
-- Show on first launch only (check Hive key `'onboardingComplete'`)
-- 3 screens: Welcome → Daily goal picker (Casual/Regular/Serious) → Language picker
-- After completing: set `onboardingComplete: true`, navigate to home
-- Store daily goal in Hive: `'dailyGoalXp'` → 10/20/30 for Casual/Regular/Serious
-
 ### 8. Firebase Auth
 - Wire up the existing Firebase packages (firebase_core, firebase_auth are in pubspec.yaml)
 - Requires a real Firebase project — add a note in code: "TODO: add google-services.json / GoogleService-Info.plist"
@@ -27,6 +21,12 @@ _(none)_
 ---
 
 ## Completed
+
+### ✅ 7. Onboarding flow
+- Show on first launch only (check Hive key `'onboardingComplete'`)
+- 3 screens: Welcome → Daily goal picker (Casual/Regular/Serious) → Language picker
+- After completing: set `onboardingComplete: true`, navigate to home
+- Store daily goal in Hive: `'dailyGoalXp'` → 10/20/30 for Casual/Regular/Serious
 
 ### ✅ 6. Spaced repetition review screen
 - Added "Review" tab between Learn and Vocab
