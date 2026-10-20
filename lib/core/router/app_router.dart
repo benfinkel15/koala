@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:koala/features/home/presentation/home_screen.dart';
 import 'package:koala/features/lesson/presentation/lesson_screen.dart';
 import 'package:koala/features/profile/presentation/profile_screen.dart';
+import 'package:koala/features/vocab/presentation/vocab_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/home',
@@ -13,6 +14,10 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/home',
           builder: (context, state) => const HomeScreen(),
+        ),
+        GoRoute(
+          path: '/vocab',
+          builder: (context, state) => const VocabScreen(),
         ),
         GoRoute(
           path: '/profile',
@@ -52,11 +57,14 @@ class _MainScaffoldState extends State<MainScaffold> {
             case 0:
               context.go('/home');
             case 1:
+              context.go('/vocab');
+            case 2:
               context.go('/profile');
           }
         },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: 'Learn'),
+          NavigationDestination(icon: Icon(Icons.menu_book), label: 'Vocab'),
           NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),

@@ -11,16 +11,6 @@ _(none)_
 
 ## To Do
 
-### 1. Vocabulary Bank tab
-- Add a 3rd tab to the bottom nav (between Learn and Profile): "Vocab" with a book icon
-- Create `lib/features/vocab/presentation/vocab_screen.dart`
-- The screen shows vocabulary grouped by lesson, but only lessons the user has completed
-- For now, "completed" means the lesson exists in a hardcoded set: ['u1_l1', 'u1_l2'] (we'll wire real progress later)
-- Extract vocab from `lib/content/german/vocab_bank.dart` — create this new file with vocab for all 15 lessons
-- Each vocab entry: German word, English translation, gender (der/die/das/— for phrases), part of speech
-- UI: searchable list, grouped by unit with expandable sections, each word shows German + English + gender chip
-- Tapping a word shows a detail card with example sentence from the lesson
-
 ### 2. Conversation Practice tab
 - Add a 4th tab: "Chat" with a chat bubble icon
 - Create `lib/features/conversation/presentation/conversation_screen.dart`
@@ -85,4 +75,11 @@ _(none)_
 ---
 
 ## Completed
-_(none yet)_
+
+### ✅ 1. Vocabulary Bank tab
+- Added a 3rd tab to the bottom nav (between Learn and Profile): "Vocab" with a book icon
+- Created `lib/features/vocab/presentation/vocab_screen.dart`
+- Created `lib/content/german/vocab_bank.dart` with vocab for all 15 lessons (5–7 entries each)
+- Each vocab entry: German word, English translation, gender (der/die/das/— for phrases), part of speech, example sentence
+- UI: searchable list, grouped by unit with expandable sections, each word shows German + English + gender chip
+- Tapping a word shows a detail dialog with example sentence from the lesson
