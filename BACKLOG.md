@@ -11,14 +11,6 @@ _(none)_
 
 ## To Do
 
-### 1. GitHub Pages deployment
-- Create `.github/workflows/deploy.yml` — on every push to main, build Flutter web and deploy to the `gh-pages` branch
-- Build command: `export PATH="$HOME/development/flutter/bin:$PATH" && flutter build web --base-href /koala/`
-- Use the `peaceiris/actions-gh-pages@v3` action to push the `build/web` output to the `gh-pages` branch
-- The workflow should use `actions/checkout@v3` and `subosito/flutter-action@v2` (channel: stable)
-- No secrets or tokens needed — use `permissions: contents: write` on the workflow job
-- After pushing, add a note in README.md: "Live at https://benfinkel15.github.io/koala/ (enable Pages in repo Settings → Pages → gh-pages branch)"
-
 ### 2. Conversation Practice tab
 - Add a 4th tab: "Chat" with a chat bubble icon
 - Create `lib/features/conversation/presentation/conversation_screen.dart`
@@ -91,3 +83,7 @@ _(none)_
 - Each vocab entry: German word, English translation, gender (der/die/das/— for phrases), part of speech, example sentence
 - UI: searchable list, grouped by unit with expandable sections, each word shows German + English + gender chip
 - Tapping a word shows a detail dialog with example sentence from the lesson
+
+### ✅ 2. GitHub Pages deployment
+- Created `.github/workflows/deploy.yml` — on every push to main, builds Flutter web and deploys to `gh-pages` branch
+- Added live URL note to README.md

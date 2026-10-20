@@ -1,6 +1,8 @@
 # koala
 
-A new Flutter project.
+A Flutter language learning app.
+
+Live at https://benfinkel15.github.io/koala/ (enable Pages in repo Settings → Pages → gh-pages branch)
 
 ## Getting Started
 
