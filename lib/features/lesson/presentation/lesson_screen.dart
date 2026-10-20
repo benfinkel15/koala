@@ -16,21 +16,36 @@ class _LessonScreenState extends State<LessonScreen> {
   String? _selectedAnswer;
   bool _answered = false;
   bool _lastCorrect = false;
+  String _correctAnswer = '';
+  String _explanation = '';
   int _hearts = 5;
   int _xp = 0;
+  late List<Map<String, dynamic>> _exercises;
+  final Set<int> _requeuedIndices = {};
 
-  List<Map<String, dynamic>> get _exercises =>
-      lessonExercises[widget.lessonId] ?? [];
+  @override
+  void initState() {
+    super.initState();
+    _exercises = List<Map<String, dynamic>>.from(
+        lessonExercises[widget.lessonId] ?? []);
+  }
 
-  void _onAnswer(bool correct) {
+  void _onAnswer(bool correct, {required String correctAnswer, String explanation = ''}) {
     if (_answered) return;
     setState(() {
       _answered = true;
       _lastCorrect = correct;
+      _correctAnswer = correctAnswer;
+      _explanation = explanation;
       if (correct) {
         _xp += 10;
       } else {
         _hearts = (_hearts - 1).clamp(0, 5);
+        // Re-queue this exercise at the end if not already re-queued
+        if (!_requeuedIndices.contains(_currentIndex)) {
+          _requeuedIndices.add(_currentIndex);
+          _exercises.add(_exercises[_currentIndex]);
+        }
       }
     });
   }
@@ -120,7 +135,12 @@ class _LessonScreenState extends State<LessonScreen> {
             ),
           ),
           if (_answered)
-            _AnswerFooter(correct: _lastCorrect, onNext: _onNext),
+            _AnswerFooter(
+              correct: _lastCorrect,
+              correctAnswer: _correctAnswer,
+              explanation: _explanation,
+              onNext: _onNext,
+            ),
         ],
       ),
     );
@@ -130,31 +150,57 @@ class _LessonScreenState extends State<LessonScreen> {
     switch (exercise['type']) {
       case 'multipleChoice':
         return _MultipleChoice(
+          key: ValueKey(_currentIndex),
           exercise: exercise,
           selectedAnswer: _selectedAnswer,
           answered: _answered,
           onAnswer: (answer, correct) {
             setState(() => _selectedAnswer = answer);
-            _onAnswer(correct);
+            final options = List<String>.from(exercise['options']);
+            final correctText = options[exercise['correct'] as int];
+            final explanation = exercise['explanation'] as String? ?? '';
+            _onAnswer(correct, correctAnswer: correctText, explanation: explanation);
           },
         );
       case 'tapToBuild':
         return _TapToBuild(
+          key: ValueKey(_currentIndex),
           exercise: exercise,
           answered: _answered,
-          onAnswer: _onAnswer,
+          onAnswer: (correct) {
+            final explanation = exercise['explanation'] as String? ?? '';
+            _onAnswer(correct,
+                correctAnswer: exercise['target'] as String,
+                explanation: explanation);
+          },
         );
       case 'fillBlank':
         return _FillBlank(
+          key: ValueKey(_currentIndex),
           exercise: exercise,
           answered: _answered,
-          onAnswer: _onAnswer,
+          onAnswer: (correct) {
+            final explanation = exercise['explanation'] as String? ?? '';
+            _onAnswer(correct,
+                correctAnswer: exercise['correct'] as String,
+                explanation: explanation);
+          },
         );
       case 'conjugationTable':
         return _ConjugationTable(
+          key: ValueKey(_currentIndex),
           exercise: exercise,
           answered: _answered,
-          onAnswer: _onAnswer,
+          onAnswer: (correct) {
+            final answers = List<String>.from(exercise['answers']);
+            final pronouns = List<String>.from(exercise['pronouns']);
+            final table = pronouns.asMap().entries
+                .map((e) => '${e.value} → ${answers[e.key]}')
+                .join(',  ');
+            final explanation = exercise['explanation'] as String? ??
+                'The full conjugation of "${exercise['verb']}" is: $table';
+            _onAnswer(correct, correctAnswer: table, explanation: explanation);
+          },
         );
       default:
         return Text('Unknown exercise type: ${exercise['type']}');
@@ -267,7 +313,11 @@ class _TapToBuildState extends State<_TapToBuild> {
   }
 
   void _check() {
-    final answer = _selected.join(' ');
+    final answer = _selected.fold<String>('', (buf, tile) {
+      if (buf.isEmpty) return tile;
+      const punct = {'.', ',', '!', '?', ':', ';'};
+      return punct.contains(tile) ? '$buf$tile' : '$buf $tile';
+    });
     widget.onAnswer(answer == widget.exercise['target']);
   }
 
@@ -623,9 +673,16 @@ class _ConjugationTableState extends State<_ConjugationTable> {
 
 class _AnswerFooter extends StatelessWidget {
   final bool correct;
+  final String correctAnswer;
+  final String explanation;
   final VoidCallback onNext;
 
-  const _AnswerFooter({required this.correct, required this.onNext});
+  const _AnswerFooter({
+    required this.correct,
+    required this.correctAnswer,
+    required this.explanation,
+    required this.onNext,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -635,6 +692,7 @@ class _AnswerFooter extends StatelessWidget {
           : AppColors.incorrect.withOpacity(0.1),
       padding: const EdgeInsets.all(24),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
               correct ? Icons.check_circle : Icons.cancel,
@@ -642,15 +700,43 @@ class _AnswerFooter extends StatelessWidget {
               size: 32),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              correct ? 'Correct! +10 XP' : 'Not quite — keep going!',
-              style: TextStyle(
-                color: correct ? AppColors.correct : AppColors.incorrect,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  correct ? 'Correct! +10 XP' : 'Not quite!',
+                  style: TextStyle(
+                    color: correct ? AppColors.correct : AppColors.incorrect,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                if (!correct && correctAnswer.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    'Correct answer: $correctAnswer',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+                if (!correct && explanation.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    explanation,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
+          const SizedBox(width: 12),
           ElevatedButton(
             onPressed: onNext,
             style: ElevatedButton.styleFrom(
