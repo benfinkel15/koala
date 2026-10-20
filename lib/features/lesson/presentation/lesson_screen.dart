@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/content/german/curriculum.dart';
+import 'package:koala/services/curriculum_generator.dart';
 
 class LessonScreen extends StatefulWidget {
   final String lessonId;
@@ -26,8 +27,11 @@ class _LessonScreenState extends State<LessonScreen> {
   @override
   void initState() {
     super.initState();
-    _exercises = List<Map<String, dynamic>>.from(
-        lessonExercises[widget.lessonId] ?? []);
+    final activeExercises =
+        CurriculumService().current?.exercises[widget.lessonId] ??
+            lessonExercises[widget.lessonId] ??
+            [];
+    _exercises = List<Map<String, dynamic>>.from(activeExercises);
   }
 
   void _onAnswer(bool correct, {required String correctAnswer, String explanation = ''}) {
@@ -217,6 +221,7 @@ class _MultipleChoice extends StatelessWidget {
   final void Function(String, bool) onAnswer;
 
   const _MultipleChoice({
+    super.key,
     required this.exercise,
     required this.selectedAnswer,
     required this.answered,
@@ -286,7 +291,7 @@ class _TapToBuild extends StatefulWidget {
   final void Function(bool) onAnswer;
 
   const _TapToBuild(
-      {required this.exercise, required this.answered, required this.onAnswer});
+      {super.key, required this.exercise, required this.answered, required this.onAnswer});
 
   @override
   State<_TapToBuild> createState() => _TapToBuildState();
@@ -398,7 +403,7 @@ class _FillBlank extends StatefulWidget {
   final void Function(bool) onAnswer;
 
   const _FillBlank(
-      {required this.exercise, required this.answered, required this.onAnswer});
+      {super.key, required this.exercise, required this.answered, required this.onAnswer});
 
   @override
   State<_FillBlank> createState() => _FillBlankState();
@@ -529,7 +534,7 @@ class _ConjugationTable extends StatefulWidget {
   final void Function(bool) onAnswer;
 
   const _ConjugationTable(
-      {required this.exercise, required this.answered, required this.onAnswer});
+      {super.key, required this.exercise, required this.answered, required this.onAnswer});
 
   @override
   State<_ConjugationTable> createState() => _ConjugationTableState();

@@ -11,16 +11,6 @@ _(none)_
 
 ## To Do
 
-### 3. AI content generation for new languages
-- Add a language selector to the home screen AppBar (currently hardcoded to German)
-- Languages to support: German (already done), Spanish, French, Italian, Japanese
-- When a new language is selected and no curriculum exists for it yet, show a "Generating curriculum..." loading screen
-- Call Claude API (claude-sonnet-4-6) to generate a curriculum in the same format as `lib/content/german/curriculum.dart`
-- The prompt should specify: same 3-unit structure, same exercise types, same conversation-first philosophy
-- Cache the generated curriculum in Hive so it only generates once per language
-- Store under Hive box `'curriculum'`, key `'<language_code>'` (e.g. 'es', 'fr')
-- Create `lib/services/curriculum_generator.dart` for this logic
-
 ### 4. Lesson progress tracking
 - Track which lessons the user has completed and their star rating (1–3 stars based on mistakes)
 - Store in Hive box `'progress'`, key `'<lessonId>'`, value: `{'stars': int, 'xp': int, 'completedAt': ISO string}`
@@ -59,6 +49,15 @@ _(none)_
 ---
 
 ## Completed
+
+### ✅ 3. AI content generation for new languages
+- Added language selector to home screen AppBar (German, Spanish, French, Italian, Japanese)
+- Created `lib/services/curriculum_generator.dart` with `CurriculumService` singleton
+- Calls Claude API (claude-sonnet-4-6) to generate curricula for non-German languages
+- Shows "Generating curriculum…" loading screen while generating
+- Caches generated curricula in Hive box `'curriculum'`, key `'<language_code>'`
+- Lesson screen uses active curriculum via `CurriculumService` with German fallback
+- Initializes Hive in `main.dart`; selected language persisted in SharedPreferences
 
 ### ✅ 2. Conversation Practice tab
 - Added Chat tab (4th tab) with chat bubble icon to bottom nav
