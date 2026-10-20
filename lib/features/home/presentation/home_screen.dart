@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/services/curriculum_generator.dart';
+import 'package:koala/services/progress_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,11 +16,31 @@ class _HomeScreenState extends State<HomeScreen> {
   LanguageInfo _selectedLanguage = supportedLanguages.first;
   bool _isGenerating = false;
   String? _error;
+  Map<String, int> _progressStars = {};
+  int _totalXp = 0;
 
   @override
   void initState() {
     super.initState();
     _restoreLanguage();
+    _loadProgress();
+  }
+
+  Future<void> _loadProgress() async {
+    final progress = await ProgressService.allProgress();
+    final stars = <String, int>{};
+    int xp = 0;
+    for (final entry in progress.entries) {
+      final s = entry.value['stars'] as int?;
+      if (s != null) stars[entry.key] = s;
+      xp += entry.value['xp'] as int? ?? 0;
+    }
+    if (mounted) {
+      setState(() {
+        _progressStars = stars;
+        _totalXp = xp;
+      });
+    }
   }
 
   Future<void> _restoreLanguage() async {
@@ -212,15 +233,21 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final units = CurriculumService().current?.units ?? [];
+    final level = _totalXp ~/ 100 + 1;
+    final xpInLevel = _totalXp % 100;
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       children: [
-        const _XpProgressBar(xp: 340, levelXp: 450, level: 4),
+        _XpProgressBar(xp: xpInLevel, levelXp: 100, level: level),
         const SizedBox(height: 24),
         ...units.asMap().entries.map((entry) {
           final color =
               AppColors.unitColors[entry.key % AppColors.unitColors.length];
-          return _UnitSection(unit: entry.value, color: color);
+          return _UnitSection(
+            unit: entry.value,
+            color: color,
+            progressStars: _progressStars,
+          );
         }),
       ],
     );
@@ -270,8 +297,13 @@ class _XpProgressBar extends StatelessWidget {
 class _UnitSection extends StatelessWidget {
   final CurriculumUnit unit;
   final Color color;
+  final Map<String, int> progressStars;
 
-  const _UnitSection({required this.unit, required this.color});
+  const _UnitSection({
+    required this.unit,
+    required this.color,
+    required this.progressStars,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -308,6 +340,7 @@ class _UnitSection extends StatelessWidget {
             lesson: lesson,
             color: color,
             isLast: i == unit.lessons.length - 1,
+            stars: progressStars[lesson.id],
           );
         }),
         const SizedBox(height: 32),
@@ -320,9 +353,14 @@ class _LessonNode extends StatelessWidget {
   final CurriculumLesson lesson;
   final Color color;
   final bool isLast;
+  final int? stars;
 
-  const _LessonNode(
-      {required this.lesson, required this.color, required this.isLast});
+  const _LessonNode({
+    required this.lesson,
+    required this.color,
+    required this.isLast,
+    this.stars,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -345,7 +383,28 @@ class _LessonNode extends StatelessWidget {
                         offset: const Offset(0, 4))
                   ],
                 ),
-                child: const Icon(Icons.star, color: Colors.white, size: 28),
+                child: stars != null
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.check, color: Colors.white, size: 20),
+                          const SizedBox(height: 2),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(
+                              3,
+                              (i) => Icon(
+                                i < stars! ? Icons.star : Icons.star_border,
+                                color: i < stars!
+                                    ? AppColors.xpGold
+                                    : Colors.white54,
+                                size: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : const Icon(Icons.star, color: Colors.white, size: 28),
               ),
             ),
             if (!isLast) Container(width: 3, height: 32, color: Colors.grey[300]),

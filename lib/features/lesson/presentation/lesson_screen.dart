@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/content/german/curriculum.dart';
 import 'package:koala/services/curriculum_generator.dart';
+import 'package:koala/services/progress_service.dart';
 
 class LessonScreen extends StatefulWidget {
   final String lessonId;
@@ -67,13 +68,37 @@ class _LessonScreenState extends State<LessonScreen> {
     }
   }
 
-  void _showComplete() {
+  void _showComplete() async {
+    final stars = ProgressService.starsForHearts(_hearts);
+    await ProgressService.saveLesson(
+      lessonId: widget.lessonId,
+      stars: stars,
+      xp: _xp,
+    );
+    if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        title: const Text('Lesson Complete! 🎉'),
-        content: Text('You earned $_xp XP!'),
+        title: const Text('Lesson Complete!'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('You earned $_xp XP!'),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                3,
+                (i) => Icon(
+                  i < stars ? Icons.star : Icons.star_border,
+                  color: AppColors.xpGold,
+                  size: 32,
+                ),
+              ),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () {

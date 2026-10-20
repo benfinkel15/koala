@@ -1,11 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:koala/core/constants/app_colors.dart';
+import 'package:koala/services/progress_service.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  int _totalXp = 0;
+  int _lessonsCompleted = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    final progress = await ProgressService.allProgress();
+    int xp = 0;
+    for (final v in progress.values) {
+      xp += v['xp'] as int? ?? 0;
+    }
+    if (mounted) {
+      setState(() {
+        _totalXp = xp;
+        _lessonsCompleted = progress.length;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final level = _totalXp ~/ 100 + 1;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -16,15 +46,20 @@ class ProfileScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          const CircleAvatar(radius: 48, backgroundColor: AppColors.primaryDark,
-              child: Icon(Icons.person, size: 48, color: Colors.white)),
+          const CircleAvatar(
+            radius: 48,
+            backgroundColor: AppColors.primaryDark,
+            child: Icon(Icons.person, size: 48, color: Colors.white),
+          ),
           const SizedBox(height: 16),
-          const Center(child: Text('Ben', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
+          const Center(
+            child: Text('Ben', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          ),
           const SizedBox(height: 32),
           _StatRow(icon: Icons.local_fire_department, color: AppColors.streakOrange, label: 'Day Streak', value: '3'),
-          _StatRow(icon: Icons.star, color: AppColors.xpGold, label: 'Total XP', value: '340'),
-          _StatRow(icon: Icons.emoji_events, color: AppColors.primary, label: 'Level', value: '4'),
-          _StatRow(icon: Icons.check_circle, color: AppColors.correct, label: 'Lessons Completed', value: '2'),
+          _StatRow(icon: Icons.star, color: AppColors.xpGold, label: 'Total XP', value: '$_totalXp'),
+          _StatRow(icon: Icons.emoji_events, color: AppColors.primary, label: 'Level', value: '$level'),
+          _StatRow(icon: Icons.check_circle, color: AppColors.correct, label: 'Lessons Completed', value: '$_lessonsCompleted'),
         ],
       ),
     );

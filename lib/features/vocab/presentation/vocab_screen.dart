@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:koala/content/german/vocab_bank.dart';
 import 'package:koala/core/constants/app_colors.dart';
+import 'package:koala/services/progress_service.dart';
 
 class VocabScreen extends StatefulWidget {
   const VocabScreen({super.key});
@@ -10,9 +11,20 @@ class VocabScreen extends StatefulWidget {
 }
 
 class _VocabScreenState extends State<VocabScreen> {
-  static const _completedLessons = ['u1_l1', 'u1_l2'];
+  Set<String> _completedLessons = {};
   String _query = '';
   final _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCompleted();
+  }
+
+  Future<void> _loadCompleted() async {
+    final ids = await ProgressService.completedLessonIds();
+    if (mounted) setState(() => _completedLessons = ids);
+  }
 
   @override
   void dispose() {

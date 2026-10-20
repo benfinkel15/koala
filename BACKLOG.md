@@ -11,13 +11,6 @@ _(none)_
 
 ## To Do
 
-### 4. Lesson progress tracking
-- Track which lessons the user has completed and their star rating (1–3 stars based on mistakes)
-- Store in Hive box `'progress'`, key `'<lessonId>'`, value: `{'stars': int, 'xp': int, 'completedAt': ISO string}`
-- On lesson complete: write to Hive, update the home screen lesson nodes to show stars
-- The vocab bank (task 1) should read from this same Hive box to filter shown vocab
-- XP total: sum all xp values from the progress box, display on profile screen
-
 ### 5. Streak system
 - Track daily practice in Hive box `'streak'`
 - Fields: `currentDays`, `longestDays`, `lastCompletedDate` (ISO date string, local timezone)
@@ -49,6 +42,13 @@ _(none)_
 ---
 
 ## Completed
+
+### ✅ 4. Lesson progress tracking
+- Track which lessons the user has completed and their star rating (1–3 stars based on mistakes)
+- Store in Hive box `'progress'`, key `'<lessonId>'`, value: `{'stars': int, 'xp': int, 'completedAt': ISO string}`
+- On lesson complete: write to Hive, update the home screen lesson nodes to show stars
+- The vocab bank reads from this same Hive box to filter shown vocab
+- XP total: sum all xp values from the progress box, display on profile screen
 
 ### ✅ 3. AI content generation for new languages
 - Added language selector to home screen AppBar (German, Spanish, French, Italian, Japanese)
