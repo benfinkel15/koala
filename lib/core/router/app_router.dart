@@ -4,6 +4,7 @@ import 'package:koala/features/conversation/presentation/conversation_screen.dar
 import 'package:koala/features/home/presentation/home_screen.dart';
 import 'package:koala/features/lesson/presentation/lesson_screen.dart';
 import 'package:koala/features/profile/presentation/profile_screen.dart';
+import 'package:koala/features/review/presentation/review_screen.dart';
 import 'package:koala/features/vocab/presentation/vocab_screen.dart';
 
 final appRouter = GoRouter(
@@ -15,6 +16,10 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/home',
           builder: (context, state) => const HomeScreen(),
+        ),
+        GoRoute(
+          path: '/review',
+          builder: (context, state) => const ReviewScreen(),
         ),
         GoRoute(
           path: '/vocab',
@@ -62,15 +67,18 @@ class _MainScaffoldState extends State<MainScaffold> {
             case 0:
               context.go('/home');
             case 1:
-              context.go('/vocab');
+              context.go('/review');
             case 2:
-              context.go('/chat');
+              context.go('/vocab');
             case 3:
+              context.go('/chat');
+            case 4:
               context.go('/profile');
           }
         },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: 'Learn'),
+          NavigationDestination(icon: Icon(Icons.replay_circle_filled), label: 'Review'),
           NavigationDestination(icon: Icon(Icons.menu_book), label: 'Vocab'),
           NavigationDestination(icon: Icon(Icons.chat_bubble), label: 'Chat'),
           NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),

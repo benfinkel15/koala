@@ -11,13 +11,6 @@ _(none)_
 
 ## To Do
 
-### 6. Spaced repetition review screen
-- Add "Review" tab between Learn and Vocab
-- Pull vocab items from completed lessons (same source as vocab bank)
-- Show items due for review based on a simple SM-2-like schedule stored in Hive
-- Exercise format: show German word, user types English (or vice versa)
-- After answering, update the item's next review date
-
 ### 7. Onboarding flow
 - Show on first launch only (check Hive key `'onboardingComplete'`)
 - 3 screens: Welcome → Daily goal picker (Casual/Regular/Serious) → Language picker
@@ -34,6 +27,14 @@ _(none)_
 ---
 
 ## Completed
+
+### ✅ 6. Spaced repetition review screen
+- Added "Review" tab between Learn and Vocab
+- Pulls vocab items from completed lessons (same source as vocab bank)
+- SM-2-like schedule stored in Hive box `'srs'`, key `'<lessonId>__<german>'`
+- Exercise format: show German word → type English, or English → type German (random per item)
+- After answering, updates interval/ease factor/next review date
+- Session shows up to 20 due items; summary screen with score at the end
 
 ### ✅ 5. Streak system
 - Track daily practice in Hive box `'streak'`
