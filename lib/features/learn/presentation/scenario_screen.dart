@@ -184,7 +184,23 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
         }
         return (data['content'] as List).first['text'] as String;
       }
-    } catch (_) {}
+      if (mounted) {
+        final body = res.body.length > 200 ? '${res.body.substring(0, 200)}…' : res.body;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('API error ${res.statusCode}: $body'),
+          backgroundColor: Colors.red.shade800,
+          duration: const Duration(seconds: 10),
+        ));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Connection error — check your API key (🔑): $e'),
+          backgroundColor: Colors.red.shade800,
+          duration: const Duration(seconds: 10),
+        ));
+      }
+    }
     return null;
   }
 
@@ -226,6 +242,28 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
       ),
       body: Column(
         children: [
+          if (_apiKey == null)
+            GestureDetector(
+              onTap: () => _showKeyDialog(isChange: true),
+              child: Container(
+                width: double.infinity,
+                color: AppColors.accent.withValues(alpha: 0.15),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  children: [
+                    const Icon(Icons.key, size: 16, color: AppColors.accent),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Tap here to enter your Anthropic API key and start chatting.',
+                        style: TextStyle(fontSize: 13, color: AppColors.accent),
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: AppColors.accent, size: 18),
+                  ],
+                ),
+              ),
+            ),
           if (_overLimit)
             Container(
               width: double.infinity,
