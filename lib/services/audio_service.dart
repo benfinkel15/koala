@@ -6,20 +6,13 @@ class AudioService {
   AudioService._internal();
 
   final FlutterTts _tts = FlutterTts();
-  bool _initialized = false;
 
-  Future<void> _ensureInit() async {
-    if (_initialized) return;
-    await _tts.setLanguage('de-DE');
+  Future<void> speak(String text, {String langCode = 'de'}) async {
+    final locale = langCode == 'nl' ? 'nl-NL' : 'de-DE';
+    await _tts.stop();
+    await _tts.setLanguage(locale);
     await _tts.setSpeechRate(0.75);
     await _tts.setVolume(1.0);
-    await _tts.setPitch(1.0);
-    _initialized = true;
-  }
-
-  Future<void> speak(String text) async {
-    await _ensureInit();
-    await _tts.stop();
     await _tts.speak(text);
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:koala/core/constants/app_colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ScenarioConfig {
   final String id;
@@ -10,6 +11,7 @@ class ScenarioConfig {
   final String difficulty;
   final IconData icon;
   final String systemPrompt;
+  final String language; // 'de' or 'nl'
 
   const ScenarioConfig({
     required this.id,
@@ -19,12 +21,15 @@ class ScenarioConfig {
     required this.difficulty,
     required this.icon,
     required this.systemPrompt,
+    required this.language,
   });
 }
 
-const _scenarios = [
+const allScenarios = [
+  // ─── German ──────────────────────────────────────────────────────────────
   ScenarioConfig(
     id: 'cafe',
+    language: 'de',
     title: 'At the Café',
     description: 'Order coffee and cake from a friendly waiter',
     character: 'German waiter',
@@ -35,6 +40,7 @@ const _scenarios = [
   ),
   ScenarioConfig(
     id: 'meeting',
+    language: 'de',
     title: 'Meeting Someone',
     description: 'Introduce yourself and get to know a new person',
     character: 'New acquaintance',
@@ -45,6 +51,7 @@ const _scenarios = [
   ),
   ScenarioConfig(
     id: 'market',
+    language: 'de',
     title: 'At the Market',
     description: 'Buy fresh fruit and vegetables from a market stall',
     character: 'Market vendor',
@@ -55,6 +62,7 @@ const _scenarios = [
   ),
   ScenarioConfig(
     id: 'train',
+    language: 'de',
     title: 'Train Station',
     description: 'Buy a ticket and find your platform',
     character: 'Station staff',
@@ -65,6 +73,7 @@ const _scenarios = [
   ),
   ScenarioConfig(
     id: 'plans',
+    language: 'de',
     title: 'Making Plans',
     description: 'Arrange to meet a friend for the weekend',
     character: 'German friend',
@@ -75,6 +84,7 @@ const _scenarios = [
   ),
   ScenarioConfig(
     id: 'doctor',
+    language: 'de',
     title: "Doctor's Visit",
     description: 'Describe your symptoms to a German doctor',
     character: 'Doctor',
@@ -85,6 +95,7 @@ const _scenarios = [
   ),
   ScenarioConfig(
     id: 'interview',
+    language: 'de',
     title: 'Job Interview',
     description: 'Answer questions about yourself and your experience',
     character: 'HR manager',
@@ -95,6 +106,7 @@ const _scenarios = [
   ),
   ScenarioConfig(
     id: 'apartment',
+    language: 'de',
     title: 'Renting a Flat',
     description: 'Ask about an apartment and discuss the details',
     character: 'Landlord',
@@ -103,37 +115,148 @@ const _scenarios = [
     systemPrompt:
         'You are a German landlord showing an apartment to a potential tenant. Speak only in German. After every response add a blank line then an English translation in italics (prefix with "🇬🇧 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tipp:". Keep responses short — 1 to 3 sentences.',
   ),
+
+  // ─── Dutch ────────────────────────────────────────────────────────────────
+  ScenarioConfig(
+    id: 'nl_cafe',
+    language: 'nl',
+    title: 'Bij het café',
+    description: 'Order koffie en appeltaart bij een vriendelijke ober',
+    character: 'Dutch café waiter',
+    difficulty: 'Beginner',
+    icon: Icons.coffee,
+    systemPrompt:
+        'You are a friendly waiter at a cozy Dutch café called "Het Bruine Paard". Speak only in Dutch. After every response add a blank line then an English translation in italics (prefix with "🇳🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'nl_meeting',
+    language: 'nl',
+    title: 'Iemand ontmoeten',
+    description: 'Stel jezelf voor en leer iemand kennen',
+    character: 'Dutch acquaintance',
+    difficulty: 'Beginner',
+    icon: Icons.waving_hand,
+    systemPrompt:
+        'You are a friendly Dutch person meeting someone new at a neighbourhood event. Speak only in Dutch. After every response add a blank line then an English translation in italics (prefix with "🇳🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'nl_market',
+    language: 'nl',
+    title: 'Op de markt',
+    description: 'Koop verse groenten en kaas bij een kraam',
+    character: 'Market vendor',
+    difficulty: 'Beginner',
+    icon: Icons.storefront,
+    systemPrompt:
+        'You are a cheerful vendor at a Dutch market (markt) selling fresh produce and cheese. Speak only in Dutch. After every response add a blank line then an English translation in italics (prefix with "🇳🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'nl_train',
+    language: 'nl',
+    title: 'Op het station',
+    description: 'Koop een kaartje en vind je perron',
+    character: 'NS station staff',
+    difficulty: 'Intermediate',
+    icon: Icons.train,
+    systemPrompt:
+        'You are a helpful ticket agent at a Dutch train station (NS). Speak only in Dutch. After every response add a blank line then an English translation in italics (prefix with "🇳🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'nl_plans',
+    language: 'nl',
+    title: 'Plannen maken',
+    description: 'Spreek af met een vriend voor het weekend',
+    character: 'Dutch friend',
+    difficulty: 'Intermediate',
+    icon: Icons.calendar_today,
+    systemPrompt:
+        'You are a good Dutch friend making plans for the weekend. Speak only in Dutch. After every response add a blank line then an English translation in italics (prefix with "🇳🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'nl_doctor',
+    language: 'nl',
+    title: 'Bij de dokter',
+    description: 'Beschrijf je klachten bij een Nederlandse dokter',
+    character: 'Huisarts',
+    difficulty: 'Intermediate',
+    icon: Icons.local_hospital,
+    systemPrompt:
+        'You are a friendly huisarts (GP) at a Dutch medical practice. Speak only in Dutch. After every response add a blank line then an English translation in italics (prefix with "🇳🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'nl_interview',
+    language: 'nl',
+    title: 'Sollicitatiegesprek',
+    description: 'Beantwoord vragen over jezelf en je werkervaring',
+    character: 'HR manager',
+    difficulty: 'Advanced',
+    icon: Icons.work,
+    systemPrompt:
+        'You are a professional HR manager at a Dutch company conducting a job interview. Speak only in Dutch. After every response add a blank line then an English translation in italics (prefix with "🇳🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'nl_apartment',
+    language: 'nl',
+    title: 'Een appartement huren',
+    description: 'Bekijk een appartement en bespreek de details',
+    character: 'Verhuurder',
+    difficulty: 'Advanced',
+    icon: Icons.apartment,
+    systemPrompt:
+        'You are a Dutch landlord showing an apartment to a potential tenant. Speak only in Dutch. After every response add a blank line then an English translation in italics (prefix with "🇳🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
 ];
 
 const _difficultyColors = {
-  'Beginner': Color(0xFF4CAF50),
-  'Intermediate': Color(0xFFFF9800),
-  'Advanced': Color(0xFFF44336),
+  'Beginner': Color(0xFF5B8C6A),
+  'Intermediate': Color(0xFFC4A44A),
+  'Advanced': Color(0xFFC4714A),
 };
 
-class LearnScreen extends StatelessWidget {
+class LearnScreen extends StatefulWidget {
   const LearnScreen({super.key});
 
   @override
+  State<LearnScreen> createState() => _LearnScreenState();
+}
+
+class _LearnScreenState extends State<LearnScreen> {
+  String _lang = 'de';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLanguage();
+  }
+
+  Future<void> _loadLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString('scenario_language') ?? 'de';
+    if (mounted) setState(() => _lang = saved);
+  }
+
+  Future<void> _setLanguage(String lang) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('scenario_language', lang);
+    setState(() => _lang = lang);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final scenarios = allScenarios.where((s) => s.language == _lang).toList();
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.surface,
             floating: true,
-            title: const Text('Learn',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+            title: const Text('Learn'),
             bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(48),
+              preferredSize: const Size.fromHeight(56),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                child: Text(
-                  'Pick a scenario and start speaking German',
-                  style: TextStyle(
-                      color: AppColors.textSecondary, fontSize: 14),
-                ),
+                child: _LanguagePicker(selected: _lang, onSelect: _setLanguage),
               ),
             ),
           ),
@@ -147,12 +270,75 @@ class LearnScreen extends StatelessWidget {
                 mainAxisSpacing: 12,
               ),
               delegate: SliverChildBuilderDelegate(
-                (context, i) => _ScenarioCard(scenario: _scenarios[i]),
-                childCount: _scenarios.length,
+                (context, i) => _ScenarioCard(scenario: scenarios[i]),
+                childCount: scenarios.length,
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LanguagePicker extends StatelessWidget {
+  final String selected;
+  final void Function(String) onSelect;
+  const _LanguagePicker({required this.selected, required this.onSelect});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _LangChip(flag: '🇩🇪', label: 'German', code: 'de', selected: selected, onTap: onSelect),
+        const SizedBox(width: 8),
+        _LangChip(flag: '🇳🇱', label: 'Dutch', code: 'nl', selected: selected, onTap: onSelect),
+      ],
+    );
+  }
+}
+
+class _LangChip extends StatelessWidget {
+  final String flag, label, code, selected;
+  final void Function(String) onTap;
+  const _LangChip({
+    required this.flag,
+    required this.label,
+    required this.code,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final active = selected == code;
+    return GestureDetector(
+      onTap: () => onTap(code),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        decoration: BoxDecoration(
+          color: active ? AppColors.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: active ? AppColors.primary : AppColors.textSecondary.withValues(alpha: 0.4),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(flag, style: const TextStyle(fontSize: 16)),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: active ? Colors.white : AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -169,11 +355,12 @@ class _ScenarioCard extends StatelessWidget {
       onTap: () => context.push('/scenario/${scenario.id}'),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.brown.withValues(alpha: 0.08)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
+              color: Colors.brown.withValues(alpha: 0.06),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -188,15 +375,14 @@ class _ScenarioCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: AppColors.primary.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(scenario.icon, color: AppColors.primary, size: 22),
+                  child: Icon(scenario.icon, color: AppColors.primary, size: 20),
                 ),
                 const Spacer(),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
@@ -204,21 +390,17 @@ class _ScenarioCard extends StatelessWidget {
                   child: Text(
                     scenario.difficulty,
                     style: TextStyle(
-                        color: color,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold),
+                        color: color, fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
             Text(scenario.title,
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 16)),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
             const SizedBox(height: 4),
             Text(scenario.description,
-                style: TextStyle(
-                    color: AppColors.textSecondary, fontSize: 13),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis),
           ],

@@ -22,12 +22,18 @@ class WordExplainerService {
     return prefs.getString('anthropic_api_key');
   }
 
-  static Future<WordExplanation?> explain(String word, String sentence) async {
+  static Future<WordExplanation?> explain(
+    String word,
+    String sentence, {
+    String langCode = 'de',
+  }) async {
     final apiKey = await getApiKey();
     if (apiKey == null || apiKey.isEmpty) return null;
 
     final clean = word.replaceAll(RegExp(r'[.,!?;:"""„]'), '');
     if (clean.isEmpty) return null;
+
+    final langName = langCode == 'nl' ? 'Dutch' : 'German';
 
     try {
       final response = await http.post(
@@ -41,7 +47,7 @@ class WordExplainerService {
           'model': 'claude-haiku-4-5-20251001',
           'max_tokens': 200,
           'system':
-              'You are a concise German language tutor. Given a German word and its sentence context, respond ONLY with valid JSON (no markdown, no explanation): {"translation":"English meaning","type":"noun|verb|adjective|adverb|preposition|conjunction|other","note":"one clear sentence about grammar or usage — e.g. accusative case, du-form of sein, separable verb prefix goes to end, V2 word order"}',
+              'You are a concise $langName language tutor. Given a $langName word and its sentence context, respond ONLY with valid JSON (no markdown, no explanation): {"translation":"English meaning","type":"noun|verb|adjective|adverb|preposition|conjunction|other","note":"one clear sentence about grammar or usage"}',
           'messages': [
             {
               'role': 'user',

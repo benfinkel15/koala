@@ -26,7 +26,9 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
   @override
   void initState() {
     super.initState();
-    _scenario = _findScenario();
+    try {
+      _scenario = allScenarios.firstWhere((s) => s.id == widget.scenarioId);
+    } catch (_) {}
     _loadKey();
   }
 
@@ -37,56 +39,16 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     super.dispose();
   }
 
-  ScenarioConfig? _findScenario() {
-    // ignore: invalid_use_of_visible_for_testing_member
-    const scenarios = [
-      ScenarioConfig(
-        id: 'cafe', title: 'At the Café', description: '', character: 'German waiter', difficulty: 'Beginner', icon: Icons.coffee,
-        systemPrompt: 'You are a friendly waiter at a cozy German café called "Zum alten Markt". Speak only in German. After every response add a blank line then an English translation in italics (prefix with "🇬🇧 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tipp:". Keep responses short — 1 to 3 sentences.',
-      ),
-      ScenarioConfig(
-        id: 'meeting', title: 'Meeting Someone', description: '', character: 'New acquaintance', difficulty: 'Beginner', icon: Icons.waving_hand,
-        systemPrompt: 'You are a friendly German person meeting someone new at a community event. Speak only in German. After every response add a blank line then an English translation in italics (prefix with "🇬🇧 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tipp:". Keep responses short — 1 to 3 sentences.',
-      ),
-      ScenarioConfig(
-        id: 'market', title: 'At the Market', description: '', character: 'Market vendor', difficulty: 'Beginner', icon: Icons.storefront,
-        systemPrompt: 'You are a cheerful vendor at a German farmers market selling fresh fruit and vegetables. Speak only in German. After every response add a blank line then an English translation in italics (prefix with "🇬🇧 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tipp:". Keep responses short — 1 to 3 sentences.',
-      ),
-      ScenarioConfig(
-        id: 'train', title: 'Train Station', description: '', character: 'Station staff', difficulty: 'Intermediate', icon: Icons.train,
-        systemPrompt: 'You are a helpful ticket agent at a German train station (Deutsche Bahn). Speak only in German. After every response add a blank line then an English translation in italics (prefix with "🇬🇧 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tipp:". Keep responses short — 1 to 3 sentences.',
-      ),
-      ScenarioConfig(
-        id: 'plans', title: 'Making Plans', description: '', character: 'German friend', difficulty: 'Intermediate', icon: Icons.calendar_today,
-        systemPrompt: 'You are a good German friend planning a weekend together. Speak only in German. After every response add a blank line then an English translation in italics (prefix with "🇬🇧 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tipp:". Keep responses short — 1 to 3 sentences.',
-      ),
-      ScenarioConfig(
-        id: 'doctor', title: "Doctor's Visit", description: '', character: 'Doctor', difficulty: 'Intermediate', icon: Icons.local_hospital,
-        systemPrompt: 'You are a friendly doctor at a German medical practice. Speak only in German. After every response add a blank line then an English translation in italics (prefix with "🇬🇧 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tipp:". Keep responses short — 1 to 3 sentences.',
-      ),
-      ScenarioConfig(
-        id: 'interview', title: 'Job Interview', description: '', character: 'HR manager', difficulty: 'Advanced', icon: Icons.work,
-        systemPrompt: 'You are a professional HR manager at a German company conducting a job interview. Speak only in German. After every response add a blank line then an English translation in italics (prefix with "🇬🇧 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tipp:". Keep responses short — 1 to 3 sentences.',
-      ),
-      ScenarioConfig(
-        id: 'apartment', title: 'Renting a Flat', description: '', character: 'Landlord', difficulty: 'Advanced', icon: Icons.apartment,
-        systemPrompt: 'You are a German landlord showing an apartment to a potential tenant. Speak only in German. After every response add a blank line then an English translation in italics (prefix with "🇬🇧 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tipp:". Keep responses short — 1 to 3 sentences.',
-      ),
-    ];
-    try {
-      return scenarios.firstWhere((s) => s.id == widget.scenarioId);
-    } catch (_) {
-      return null;
-    }
-  }
-
   Future<void> _loadKey() async {
     final prefs = await SharedPreferences.getInstance();
     final key = prefs.getString('anthropic_api_key');
     if (!mounted) return;
     setState(() => _apiKey = key);
-    if (key == null) _showKeyDialog();
-    else _sendOpener();
+    if (key == null) {
+      _showKeyDialog();
+    } else {
+      _sendOpener();
+    }
   }
 
   void _showKeyDialog({bool isChange = false}) async {
@@ -99,7 +61,8 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
         content: TextField(
           controller: c,
           obscureText: true,
-          decoration: const InputDecoration(hintText: 'sk-ant-...', labelText: 'API Key'),
+          decoration:
+              const InputDecoration(hintText: 'sk-ant-...', labelText: 'API Key'),
         ),
         actions: [
           if (isChange)
@@ -134,8 +97,10 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     });
     _scrollToBottom();
     if (reply != null) {
-      final german = reply.split('\n').first.trim();
-      if (german.isNotEmpty) AudioService().speak(german);
+      final firstLine = reply.split('\n').first.trim();
+      if (firstLine.isNotEmpty) {
+        AudioService().speak(firstLine, langCode: _scenario!.language);
+      }
     }
   }
 
@@ -156,8 +121,10 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     });
     _scrollToBottom();
     if (reply != null) {
-      final german = reply.split('\n').first.trim();
-      if (german.isNotEmpty) AudioService().speak(german);
+      final firstLine = reply.split('\n').first.trim();
+      if (firstLine.isNotEmpty) {
+        AudioService().speak(firstLine, langCode: _scenario!.language);
+      }
     }
   }
 
@@ -165,7 +132,10 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     if (_scenario == null || _apiKey == null) return null;
     try {
       final history = _messages
-          .map((m) => {'role': m.role == _Role.user ? 'user' : 'assistant', 'content': m.content})
+          .map((m) => {
+                'role': m.role == _Role.user ? 'user' : 'assistant',
+                'content': m.content
+              })
           .toList();
       history.add({'role': 'user', 'content': userContent});
 
@@ -209,12 +179,13 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(scenario.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(scenario.title,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             Text('with ${scenario.character}',
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
           ],
@@ -235,7 +206,8 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
               itemCount: _messages.length + (_loading ? 1 : 0),
               itemBuilder: (ctx, i) {
                 if (i == _messages.length) return const _TypingIndicator();
-                return _MessageBubble(message: _messages[i]);
+                return _MessageBubble(
+                    message: _messages[i], language: scenario.language);
               },
             ),
           ),
@@ -243,6 +215,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
             controller: _input,
             loading: _loading,
             onSend: _send,
+            language: scenario.language,
           ),
         ],
       ),
@@ -254,7 +227,8 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
 
 class _MessageBubble extends StatelessWidget {
   final _Msg message;
-  const _MessageBubble({required this.message});
+  final String language;
+  const _MessageBubble({required this.message, required this.language});
 
   @override
   Widget build(BuildContext context) {
@@ -275,10 +249,10 @@ class _MessageBubble extends StatelessWidget {
       );
     }
 
-    // Split assistant message into German part and English translation
     final parts = message.content.split('\n\n');
-    final germanPart = parts.isNotEmpty ? parts[0].trim() : message.content;
-    final englishPart = parts.length > 1 ? parts.sublist(1).join('\n\n').trim() : null;
+    final targetLangPart = parts.isNotEmpty ? parts[0].trim() : message.content;
+    final englishPart =
+        parts.length > 1 ? parts.sublist(1).join('\n\n').trim() : null;
 
     return Align(
       alignment: Alignment.centerLeft,
@@ -286,16 +260,19 @@ class _MessageBubble extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12, right: 48),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.brown.withValues(alpha: 0.08)),
           boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 4)
+            BoxShadow(
+                color: Colors.brown.withValues(alpha: 0.05), blurRadius: 4)
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _TappableText(text: germanPart, sentence: germanPart),
+            _TappableText(
+                text: targetLangPart, sentence: targetLangPart, language: language),
             if (englishPart != null && englishPart.isNotEmpty) ...[
               const SizedBox(height: 6),
               Text(
@@ -308,8 +285,9 @@ class _MessageBubble extends StatelessWidget {
             ],
             const SizedBox(height: 4),
             GestureDetector(
-              onTap: () => AudioService().speak(germanPart),
-              child: Icon(Icons.volume_up, size: 16, color: AppColors.textSecondary),
+              onTap: () => AudioService().speak(targetLangPart, langCode: language),
+              child: Icon(Icons.volume_up,
+                  size: 16, color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -323,7 +301,9 @@ class _MessageBubble extends StatelessWidget {
 class _TappableText extends StatelessWidget {
   final String text;
   final String sentence;
-  const _TappableText({required this.text, required this.sentence});
+  final String language;
+  const _TappableText(
+      {required this.text, required this.sentence, required this.language});
 
   @override
   Widget build(BuildContext context) {
@@ -346,11 +326,11 @@ class _TappableText extends StatelessWidget {
   void _showExplanation(BuildContext context, String word, String sentence) {
     final clean = word.replaceAll(RegExp(r'[.,!?;:"""„]'), '');
     if (clean.isEmpty) return;
-    WordDrillSheet.show(context, clean, sentence);
+    WordDrillSheet.show(context, clean, sentence, langCode: language);
   }
 }
 
-// ─── Typing Indicator ─────────────────────────────────────────────────────
+// ─── Typing Indicator ──────────────────────────────────────────────────────
 
 class _TypingIndicator extends StatelessWidget {
   const _TypingIndicator();
@@ -363,8 +343,9 @@ class _TypingIndicator extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.brown.withValues(alpha: 0.08)),
         ),
         child: const SizedBox(
           width: 40,
@@ -382,19 +363,25 @@ class _InputBar extends StatelessWidget {
   final TextEditingController controller;
   final bool loading;
   final VoidCallback onSend;
+  final String language;
 
   const _InputBar({
     required this.controller,
     required this.loading,
     required this.onSend,
+    required this.language,
   });
 
   @override
   Widget build(BuildContext context) {
+    final hint =
+        language == 'nl' ? 'Schrijf in het Nederlands…' : 'Schreib auf Deutsch…';
     return Container(
-      color: Colors.white,
+      color: AppColors.surface,
       padding: EdgeInsets.only(
-        left: 16, right: 8, top: 8,
+        left: 16,
+        right: 8,
+        top: 8,
         bottom: MediaQuery.of(context).viewInsets.bottom + 8,
       ),
       child: Row(
@@ -404,17 +391,20 @@ class _InputBar extends StatelessWidget {
               controller: controller,
               onSubmitted: (_) => onSend(),
               decoration: InputDecoration(
-                hintText: 'Schreib auf Deutsch…',
+                hintText: hint,
                 hintStyle: TextStyle(color: AppColors.textSecondary),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
+                  borderSide:
+                      BorderSide(color: Colors.brown.withValues(alpha: 0.2)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
+                  borderSide:
+                      BorderSide(color: Colors.brown.withValues(alpha: 0.2)),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               ),
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:koala/content/dutch/passages.dart';
 import 'package:koala/content/german/passages.dart';
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/widgets/word_drill_sheet.dart';
@@ -18,17 +19,21 @@ class _PassageScreenState extends State<PassageScreen> {
   bool _playing = false;
   int _currentSentence = -1;
 
+  String get _ttsLocale => _passage?.language == 'nl' ? 'nl-NL' : 'de-DE';
+  String get _langCode => _passage?.language ?? 'de';
+
   @override
   void initState() {
     super.initState();
     try {
-      _passage = germanPassages.firstWhere((p) => p.id == widget.passageId);
+      _passage = [...germanPassages, ...dutchPassages]
+          .firstWhere((p) => p.id == widget.passageId);
     } catch (_) {}
     _initTts();
   }
 
   Future<void> _initTts() async {
-    await _tts.setLanguage('de-DE');
+    await _tts.setLanguage(_ttsLocale);
     await _tts.setSpeechRate(0.72);
     await _tts.setVolume(1.0);
     _tts.setCompletionHandler(() {
@@ -49,6 +54,7 @@ class _PassageScreenState extends State<PassageScreen> {
       setState(() { _playing = false; _currentSentence = -1; });
     } else {
       if (_passage == null) return;
+      await _tts.setLanguage(_ttsLocale);
       setState(() { _playing = true; _currentSentence = 0; });
       await _tts.speak(_passage!.sentences[0]);
     }
@@ -75,8 +81,10 @@ class _PassageScreenState extends State<PassageScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(passage.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            Text(passage.topic, style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+            Text(passage.title,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(passage.topic,
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
           ],
         ),
         actions: [
@@ -129,7 +137,7 @@ class _PassageScreenState extends State<PassageScreen> {
   }
 
   void _showWordSheet(BuildContext context, String word, String sentence) {
-    WordDrillSheet.show(context, word, sentence);
+    WordDrillSheet.show(context, word, sentence, langCode: _langCode);
   }
 }
 
@@ -154,10 +162,13 @@ class _SentenceBlock extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: isActive ? AppColors.primary.withValues(alpha: 0.08) : Colors.transparent,
+        color:
+            isActive ? AppColors.primary.withValues(alpha: 0.08) : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: isActive ? AppColors.primary.withValues(alpha: 0.3) : Colors.transparent,
+          color: isActive
+              ? AppColors.primary.withValues(alpha: 0.3)
+              : Colors.transparent,
         ),
       ),
       child: Wrap(
@@ -174,7 +185,8 @@ class _SentenceBlock extends StatelessWidget {
                 height: 1.7,
                 color: isActive ? AppColors.primary : AppColors.textPrimary,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-                decoration: clean.isNotEmpty ? TextDecoration.underline : null,
+                decoration:
+                    clean.isNotEmpty ? TextDecoration.underline : null,
                 decorationColor: Colors.grey[300],
                 decorationStyle: TextDecorationStyle.dotted,
               ),
@@ -185,4 +197,3 @@ class _SentenceBlock extends StatelessWidget {
     );
   }
 }
-

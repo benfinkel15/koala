@@ -8,19 +8,31 @@ enum _Phase { loading, explanation, drill, result }
 class WordDrillSheet extends StatefulWidget {
   final String word;
   final String sentence;
+  final String langCode;
 
-  const WordDrillSheet({super.key, required this.word, required this.sentence});
+  const WordDrillSheet({
+    super.key,
+    required this.word,
+    required this.sentence,
+    this.langCode = 'de',
+  });
 
-  static Future<void> show(BuildContext context, String word, String sentence) {
-    AudioService().speak(word);
+  static Future<void> show(
+    BuildContext context,
+    String word,
+    String sentence, {
+    String langCode = 'de',
+  }) {
+    AudioService().speak(word, langCode: langCode);
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => WordDrillSheet(word: word, sentence: sentence),
+      builder: (_) =>
+          WordDrillSheet(word: word, sentence: sentence, langCode: langCode),
     );
   }
 
@@ -59,21 +71,28 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
       if (mounted) setState(() { _phase = _Phase.explanation; _noKey = true; });
       return;
     }
-    final result = await WordExplainerService.explain(widget.word, widget.sentence);
+    final result = await WordExplainerService.explain(
+      widget.word,
+      widget.sentence,
+      langCode: widget.langCode,
+    );
     if (mounted) setState(() { _explanation = result; _phase = _Phase.explanation; });
   }
 
   void _check() {
-    final correct = _answer.text.trim().toLowerCase() == widget.word.toLowerCase();
+    final correct =
+        _answer.text.trim().toLowerCase() == widget.word.toLowerCase();
     setState(() { _correct = correct; _phase = _Phase.result; });
-    if (correct) AudioService().speak(widget.word);
+    if (correct) AudioService().speak(widget.word, langCode: widget.langCode);
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        left: 24, right: 24, top: 20,
+        left: 24,
+        right: 24,
+        top: 20,
         bottom: MediaQuery.of(context).viewInsets.bottom + 32,
       ),
       child: AnimatedSwitcher(
@@ -113,7 +132,8 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
             const Spacer(),
             IconButton(
               icon: const Icon(Icons.volume_up, color: AppColors.primary),
-              onPressed: () => AudioService().speak(widget.word),
+              onPressed: () =>
+                  AudioService().speak(widget.word, langCode: widget.langCode),
             ),
           ],
         ),
@@ -125,8 +145,11 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
           const SizedBox(height: 8),
           const Text('Could not load explanation.'),
         ] else ...[
-          _InfoRow(label: 'Meaning', value: _explanation!.translation,
-              valueStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+          _InfoRow(
+              label: 'Meaning',
+              value: _explanation!.translation,
+              valueStyle:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           _InfoRow(label: 'Type', value: _explanation!.partOfSpeech),
           const SizedBox(height: 8),
@@ -139,12 +162,6 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
             onPressed: () => setState(() => _phase = _Phase.drill),
             icon: const Icon(Icons.fitness_center, size: 18),
             label: const Text('Practice this word'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
           ),
         ),
       ],
@@ -157,9 +174,10 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Fill in the blank', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        const Text('Fill in the blank',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         const SizedBox(height: 4),
-        Text('Type the missing German word',
+        Text('Type the missing word',
             style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
         const SizedBox(height: 20),
         Container(
@@ -178,10 +196,8 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
           controller: _answer,
           autofocus: true,
           onSubmitted: (_) => _check(),
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             hintText: 'Type your answer…',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
         ),
         const SizedBox(height: 12),
@@ -189,13 +205,8 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
           width: double.infinity,
           child: ElevatedButton(
             onPressed: _check,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: const Text('Check', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            child: const Text('Check',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           ),
         ),
       ],
@@ -211,8 +222,10 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
       children: [
         Row(
           children: [
-            Icon(correct ? Icons.check_circle : Icons.cancel,
-                color: correct ? AppColors.correct : AppColors.incorrect, size: 32),
+            Icon(
+                correct ? Icons.check_circle : Icons.cancel,
+                color: correct ? AppColors.correct : AppColors.incorrect,
+                size: 32),
             const SizedBox(width: 12),
             Text(correct ? 'Correct!' : 'Not quite!',
                 style: TextStyle(
@@ -239,11 +252,13 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Icons.lightbulb_outline, size: 16, color: AppColors.textSecondary),
+                    Icon(Icons.lightbulb_outline,
+                        size: 16, color: AppColors.textSecondary),
                     const SizedBox(width: 4),
                     Text('Answer: ${widget.word}',
                         style: TextStyle(
-                            color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w600)),
                   ],
                 ),
               ],
@@ -261,10 +276,6 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
                 },
                 icon: const Icon(Icons.replay, size: 18),
                 label: const Text('Try again'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -273,12 +284,6 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
                 onPressed: () => Navigator.of(context).pop(),
                 icon: const Icon(Icons.arrow_back, size: 18),
                 label: const Text('Resume'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
               ),
             ),
           ],
@@ -309,7 +314,9 @@ class _InfoRow extends StatelessWidget {
                     fontSize: 13,
                     fontWeight: FontWeight.w600)),
           ),
-          Expanded(child: Text(value, style: valueStyle ?? const TextStyle(fontSize: 15))),
+          Expanded(
+              child:
+                  Text(value, style: valueStyle ?? const TextStyle(fontSize: 15))),
         ],
       ),
     );

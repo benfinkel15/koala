@@ -4,6 +4,7 @@ class GermanPassage {
   final String level;
   final String topic;
   final List<String> sentences;
+  final String language;
 
   const GermanPassage({
     required this.id,
@@ -11,6 +12,7 @@ class GermanPassage {
     required this.level,
     required this.topic,
     required this.sentences,
+    this.language = 'de',
   });
 
   String get fullText => sentences.join(' ');

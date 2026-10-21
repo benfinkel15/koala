@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:koala/content/dutch/curriculum.dart';
 import 'package:koala/content/german/curriculum.dart';
 
 class LanguageInfo {
@@ -17,6 +18,7 @@ class LanguageInfo {
 
 const supportedLanguages = [
   LanguageInfo(code: 'de', name: 'German', nativeName: 'Deutsch'),
+  LanguageInfo(code: 'nl', name: 'Dutch', nativeName: 'Nederlands'),
   LanguageInfo(code: 'es', name: 'Spanish', nativeName: 'Español'),
   LanguageInfo(code: 'fr', name: 'French', nativeName: 'Français'),
   LanguageInfo(code: 'it', name: 'Italian', nativeName: 'Italiano'),
@@ -97,6 +99,12 @@ class CurriculumService {
       String code, String name, String apiKey) async {
     if (code == 'de') {
       _loadGerman();
+      return _current!;
+    }
+
+    if (code == 'nl') {
+      _currentCode = 'nl';
+      _current = CurriculumData(units: _dutchUnits, exercises: dutchLessonExercises);
       return _current!;
     }
 
@@ -263,6 +271,69 @@ class CurriculumService {
         CurriculumLesson(id: 'u5_l3', title: 'Separable Verbs'),
         CurriculumLesson(id: 'u5_l4', title: 'Days & Months'),
         CurriculumLesson(id: 'u5_l5', title: 'Making Plans — Full Conversation'),
+      ],
+    ),
+  ];
+
+  static const _dutchUnits = [
+    CurriculumUnit(
+      id: 'nl_u1',
+      title: 'Unit 1 — Groeten & Kennismaken',
+      description: 'Zeg hallo, stel jezelf voor, zeg waar je vandaan komt',
+      lessons: [
+        CurriculumLesson(id: 'nl_u1_l1', title: 'Hallo en doei'),
+        CurriculumLesson(id: 'nl_u1_l2', title: 'Mijn naam is…'),
+        CurriculumLesson(id: 'nl_u1_l3', title: 'Het werkwoord "zijn"'),
+        CurriculumLesson(id: 'nl_u1_l4', title: 'Waar kom je vandaan?'),
+        CurriculumLesson(id: 'nl_u1_l5', title: 'Eerste gesprek'),
+      ],
+    ),
+    CurriculumUnit(
+      id: 'nl_u2',
+      title: 'Unit 2 — Familie & Hobby\'s',
+      description: 'Praat over familie, hobby\'s en gewone werkwoorden',
+      lessons: [
+        CurriculumLesson(id: 'nl_u2_l1', title: 'Het werkwoord "hebben"'),
+        CurriculumLesson(id: 'nl_u2_l2', title: 'Familieleden'),
+        CurriculumLesson(id: 'nl_u2_l3', title: 'Regelmatige -en werkwoorden'),
+        CurriculumLesson(id: 'nl_u2_l4', title: 'Hobby\'s'),
+        CurriculumLesson(id: 'nl_u2_l5', title: 'Volledige zelfintroductie'),
+      ],
+    ),
+    CurriculumUnit(
+      id: 'nl_u3',
+      title: 'Unit 3 — Eten & Café',
+      description: 'Bestel eten, druk voorkeuren uit, gebruik modale werkwoorden',
+      lessons: [
+        CurriculumLesson(id: 'nl_u3_l1', title: 'Eten en drinken'),
+        CurriculumLesson(id: 'nl_u3_l2', title: 'Lekker vinden — Voorkeuren uitdrukken'),
+        CurriculumLesson(id: 'nl_u3_l3', title: 'Bestellen in een café'),
+        CurriculumLesson(id: 'nl_u3_l4', title: 'kunnen en moeten'),
+        CurriculumLesson(id: 'nl_u3_l5', title: 'In het café — Volledig gesprek'),
+      ],
+    ),
+    CurriculumUnit(
+      id: 'nl_u4',
+      title: 'Unit 4 — Richtingen & Vervoer',
+      description: 'Tel, vraag de weg, gebruik vervoer, navigeer de stad',
+      lessons: [
+        CurriculumLesson(id: 'nl_u4_l1', title: 'Nummers 1–20'),
+        CurriculumLesson(id: 'nl_u4_l2', title: 'Links, rechts, rechtdoor'),
+        CurriculumLesson(id: 'nl_u4_l3', title: 'Vervoer — Bus, trein, fiets'),
+        CurriculumLesson(id: 'nl_u4_l4', title: 'Plaatsvoorzetsels'),
+        CurriculumLesson(id: 'nl_u4_l5', title: 'Rondkomen — Volledig gesprek'),
+      ],
+    ),
+    CurriculumUnit(
+      id: 'nl_u5',
+      title: 'Unit 5 — Dagelijks Leven & Tijd',
+      description: 'Vertel de tijd, praat over routines, maak plannen',
+      lessons: [
+        CurriculumLesson(id: 'nl_u5_l1', title: 'Hoe laat is het?'),
+        CurriculumLesson(id: 'nl_u5_l2', title: 'Dagelijkse routine'),
+        CurriculumLesson(id: 'nl_u5_l3', title: 'Scheidbare werkwoorden'),
+        CurriculumLesson(id: 'nl_u5_l4', title: 'Dagen & Maanden'),
+        CurriculumLesson(id: 'nl_u5_l5', title: 'Plannen maken — Volledig gesprek'),
       ],
     ),
   ];
