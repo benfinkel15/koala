@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:koala/content/german/passages.dart';
 import 'package:koala/core/constants/app_colors.dart';
-import 'package:koala/services/audio_service.dart';
-import 'package:koala/services/word_explainer_service.dart';
+import 'package:koala/widgets/word_drill_sheet.dart';
 
 class PassageScreen extends StatefulWidget {
   final String passageId;
@@ -130,15 +129,7 @@ class _PassageScreenState extends State<PassageScreen> {
   }
 
   void _showWordSheet(BuildContext context, String word, String sentence) {
-    AudioService().speak(word);
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => _WordSheet(word: word, sentence: sentence),
-    );
+    WordDrillSheet.show(context, word, sentence);
   }
 }
 
@@ -195,118 +186,3 @@ class _SentenceBlock extends StatelessWidget {
   }
 }
 
-// ─── Word Explanation Sheet ────────────────────────────────────────────────
-
-class _WordSheet extends StatefulWidget {
-  final String word;
-  final String sentence;
-  const _WordSheet({required this.word, required this.sentence});
-
-  @override
-  State<_WordSheet> createState() => _WordSheetState();
-}
-
-class _WordSheetState extends State<_WordSheet> {
-  WordExplanation? _explanation;
-  bool _loading = true;
-  bool _noKey = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final key = await WordExplainerService.getApiKey();
-    if (key == null || key.isEmpty) {
-      if (mounted) setState(() { _loading = false; _noKey = true; });
-      return;
-    }
-    final result = await WordExplainerService.explain(widget.word, widget.sentence);
-    if (mounted) setState(() { _explanation = result; _loading = false; });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(widget.word,
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-              const Spacer(),
-              IconButton(
-                icon: const Icon(Icons.volume_up, color: AppColors.primary),
-                onPressed: () => AudioService().speak(widget.word),
-              ),
-            ],
-          ),
-          Text(
-            '"${widget.sentence}"',
-            style: TextStyle(
-                color: AppColors.textSecondary, fontSize: 13, fontStyle: FontStyle.italic),
-          ),
-          const Divider(height: 24),
-          if (_loading)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if (_noKey)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Text(
-                'Enter your Anthropic API key in the scenario chat to enable word explanations.',
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-            )
-          else if (_explanation == null)
-            const Padding(
-              padding: EdgeInsets.only(bottom: 16),
-              child: Text('Could not load explanation.'),
-            )
-          else ...[
-            _InfoRow(label: 'Translation', value: _explanation!.translation, valueStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            _InfoRow(label: 'Type', value: _explanation!.partOfSpeech),
-            const SizedBox(height: 12),
-            _InfoRow(label: 'Grammar', value: _explanation!.note),
-            const SizedBox(height: 16),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final TextStyle? valueStyle;
-  const _InfoRow({required this.label, required this.value, this.valueStyle});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 90,
-          child: Text(label,
-              style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600)),
-        ),
-        Expanded(
-          child: Text(value, style: valueStyle ?? const TextStyle(fontSize: 15)),
-        ),
-      ],
-    );
-  }
-}

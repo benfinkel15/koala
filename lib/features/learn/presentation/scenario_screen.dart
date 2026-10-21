@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/features/learn/presentation/learn_screen.dart';
 import 'package:koala/services/audio_service.dart';
-import 'package:koala/services/word_explainer_service.dart';
+import 'package:koala/widgets/word_drill_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ScenarioScreen extends StatefulWidget {
@@ -343,115 +343,10 @@ class _TappableText extends StatelessWidget {
     );
   }
 
-  void _showExplanation(BuildContext context, String word, String sentence) async {
+  void _showExplanation(BuildContext context, String word, String sentence) {
     final clean = word.replaceAll(RegExp(r'[.,!?;:"""„]'), '');
     if (clean.isEmpty) return;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => _WordSheet(word: clean, sentence: sentence),
-    );
-  }
-}
-
-// ─── Word Explanation Sheet ────────────────────────────────────────────────
-
-class _WordSheet extends StatefulWidget {
-  final String word;
-  final String sentence;
-  const _WordSheet({required this.word, required this.sentence});
-
-  @override
-  State<_WordSheet> createState() => _WordSheetState();
-}
-
-class _WordSheetState extends State<_WordSheet> {
-  WordExplanation? _explanation;
-  bool _loading = true;
-  bool _noKey = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final key = await WordExplainerService.getApiKey();
-    if (key == null || key.isEmpty) {
-      if (mounted) setState(() { _loading = false; _noKey = true; });
-      return;
-    }
-    final result = await WordExplainerService.explain(widget.word, widget.sentence);
-    if (mounted) setState(() { _explanation = result; _loading = false; });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(widget.word,
-                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-              const Spacer(),
-              IconButton(
-                icon: const Icon(Icons.volume_up, color: AppColors.primary),
-                onPressed: () => AudioService().speak(widget.word),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (_loading)
-            const Center(child: CircularProgressIndicator())
-          else if (_noKey)
-            const Text('Add your Anthropic API key in the settings to get word explanations.')
-          else if (_explanation == null)
-            const Text('Could not load explanation. Check your API key.')
-          else ...[
-            _Row(label: 'Translation', value: _explanation!.translation),
-            const SizedBox(height: 8),
-            _Row(label: 'Type', value: _explanation!.partOfSpeech),
-            const SizedBox(height: 8),
-            _Row(label: 'Grammar', value: _explanation!.note),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _Row extends StatelessWidget {
-  final String label;
-  final String value;
-  const _Row({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 90,
-          child: Text(label,
-              style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600)),
-        ),
-        Expanded(
-          child: Text(value, style: const TextStyle(fontSize: 15)),
-        ),
-      ],
-    );
+    WordDrillSheet.show(context, clean, sentence);
   }
 }
 
