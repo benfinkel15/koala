@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/services/audio_service.dart';
 import 'package:koala/services/word_explainer_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum _Phase { loading, explanation, drill, result }
 
@@ -79,6 +80,39 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
     if (mounted) setState(() { _explanation = result; _phase = _Phase.explanation; });
   }
 
+  Future<void> _showKeyDialog() async {
+    final controller = TextEditingController();
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Anthropic API Key'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: 'sk-ant-...', labelText: 'API Key'),
+          obscureText: true,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () async {
+              final key = controller.text.trim();
+              if (key.isEmpty) return;
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setString('anthropic_api_key', key);
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (!mounted) return;
+    setState(() { _phase = _Phase.loading; _noKey = false; });
+    _load();
+  }
+
   void _check() {
     final correct =
         _answer.text.trim().toLowerCase() == widget.word.toLowerCase();
@@ -138,9 +172,20 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
           ],
         ),
         if (_noKey) ...[
-          const SizedBox(height: 8),
-          Text('Enter your API key in the Learn tab to get explanations.',
-              style: TextStyle(color: AppColors.textSecondary)),
+          const SizedBox(height: 12),
+          Text(
+            'An Anthropic API key is needed for word explanations.',
+            style: const TextStyle(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: _showKeyDialog,
+              icon: const Icon(Icons.key, size: 18),
+              label: const Text('Set API key'),
+            ),
+          ),
         ] else if (_explanation == null) ...[
           const SizedBox(height: 8),
           const Text('Could not load explanation.'),

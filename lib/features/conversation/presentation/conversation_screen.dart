@@ -122,6 +122,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
           'x-api-key': _apiKey!,
           'anthropic-version': '2023-06-01',
           'content-type': 'application/json',
+          'anthropic-dangerous-direct-browser-access': 'true',
         },
         body: jsonEncode({
           'model': 'claude-haiku-5-5',
