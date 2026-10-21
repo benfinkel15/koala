@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/content/german/curriculum.dart';
+import 'package:koala/services/audio_service.dart';
 import 'package:koala/services/curriculum_generator.dart';
 import 'package:koala/services/progress_service.dart';
 import 'package:koala/services/streak_service.dart';
@@ -21,6 +22,7 @@ class _LessonScreenState extends State<LessonScreen> {
   bool _lastCorrect = false;
   String _correctAnswer = '';
   String _explanation = '';
+  String _speakText = '';
   int _hearts = 5;
   int _xp = 0;
   late List<Map<String, dynamic>> _exercises;
@@ -36,13 +38,14 @@ class _LessonScreenState extends State<LessonScreen> {
     _exercises = List<Map<String, dynamic>>.from(activeExercises);
   }
 
-  void _onAnswer(bool correct, {required String correctAnswer, String explanation = ''}) {
+  void _onAnswer(bool correct, {required String correctAnswer, String explanation = '', String speakText = ''}) {
     if (_answered) return;
     setState(() {
       _answered = true;
       _lastCorrect = correct;
       _correctAnswer = correctAnswer;
       _explanation = explanation;
+      _speakText = speakText;
       if (correct) {
         _xp += 10;
       } else {
@@ -54,6 +57,7 @@ class _LessonScreenState extends State<LessonScreen> {
         }
       }
     });
+    if (speakText.isNotEmpty) AudioService().speak(speakText);
   }
 
   void _onNext() {
@@ -170,6 +174,7 @@ class _LessonScreenState extends State<LessonScreen> {
               correct: _lastCorrect,
               correctAnswer: _correctAnswer,
               explanation: _explanation,
+              speakText: _speakText,
               onNext: _onNext,
             ),
         ],
@@ -190,7 +195,7 @@ class _LessonScreenState extends State<LessonScreen> {
             final options = List<String>.from(exercise['options']);
             final correctText = options[exercise['correct'] as int];
             final explanation = exercise['explanation'] as String? ?? '';
-            _onAnswer(correct, correctAnswer: correctText, explanation: explanation);
+            _onAnswer(correct, correctAnswer: correctText, explanation: explanation, speakText: correctText);
           },
         );
       case 'tapToBuild':
@@ -200,9 +205,8 @@ class _LessonScreenState extends State<LessonScreen> {
           answered: _answered,
           onAnswer: (correct) {
             final explanation = exercise['explanation'] as String? ?? '';
-            _onAnswer(correct,
-                correctAnswer: exercise['target'] as String,
-                explanation: explanation);
+            final target = exercise['target'] as String;
+            _onAnswer(correct, correctAnswer: target, explanation: explanation, speakText: target);
           },
         );
       case 'fillBlank':
@@ -212,9 +216,9 @@ class _LessonScreenState extends State<LessonScreen> {
           answered: _answered,
           onAnswer: (correct) {
             final explanation = exercise['explanation'] as String? ?? '';
-            _onAnswer(correct,
-                correctAnswer: exercise['correct'] as String,
-                explanation: explanation);
+            final correctWord = exercise['correct'] as String;
+            final fullSentence = (exercise['sentence'] as String).replaceFirst('___', correctWord);
+            _onAnswer(correct, correctAnswer: correctWord, explanation: explanation, speakText: fullSentence);
           },
         );
       case 'conjugationTable':
@@ -362,8 +366,20 @@ class _TapToBuildState extends State<_TapToBuild> {
         const Text('Tap the words in the correct order',
             style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
         const SizedBox(height: 12),
-        Text(widget.exercise['prompt'],
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(widget.exercise['prompt'],
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            ),
+            IconButton(
+              icon: const Icon(Icons.volume_up, color: AppColors.textSecondary),
+              onPressed: () => AudioService().speak(widget.exercise['target'] as String),
+              tooltip: 'Hear the answer',
+            ),
+          ],
+        ),
         const SizedBox(height: 32),
         Container(
           width: double.infinity,
@@ -705,12 +721,14 @@ class _AnswerFooter extends StatelessWidget {
   final bool correct;
   final String correctAnswer;
   final String explanation;
+  final String speakText;
   final VoidCallback onNext;
 
   const _AnswerFooter({
     required this.correct,
     required this.correctAnswer,
     required this.explanation,
+    required this.speakText,
     required this.onNext,
   });
 
@@ -733,13 +751,26 @@ class _AnswerFooter extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  correct ? 'Correct! +10 XP' : 'Not quite!',
-                  style: TextStyle(
-                    color: correct ? AppColors.correct : AppColors.incorrect,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      correct ? 'Correct! +10 XP' : 'Not quite!',
+                      style: TextStyle(
+                        color: correct ? AppColors.correct : AppColors.incorrect,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    if (speakText.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () => AudioService().speak(speakText),
+                        child: Icon(Icons.volume_up,
+                            color: correct ? AppColors.correct : AppColors.incorrect,
+                            size: 22),
+                      ),
+                    ],
+                  ],
                 ),
                 if (!correct && correctAnswer.isNotEmpty) ...[
                   const SizedBox(height: 6),
