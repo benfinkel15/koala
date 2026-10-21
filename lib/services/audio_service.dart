@@ -8,7 +8,7 @@ class AudioService {
   final FlutterTts _tts = FlutterTts();
 
   Future<void> speak(String text, {String langCode = 'de'}) async {
-    final locale = langCode == 'nl' ? 'nl-NL' : 'de-DE';
+    final locale = langCode == 'nl' ? 'nl-NL' : langCode == 'da' ? 'da-DK' : 'de-DE';
     await _tts.stop();
     await _tts.setLanguage(locale);
     await _tts.setSpeechRate(0.75);

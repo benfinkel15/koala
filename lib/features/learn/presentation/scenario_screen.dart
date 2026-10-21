@@ -103,8 +103,12 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
       return;
     }
     setState(() => _loading = true);
-    final reply = await _callApi(
-        'Bitte starte das Gespräch mit einer kurzen, natürlichen Eröffnung passend zur Situation.');
+    final opener = _scenario!.language == 'nl'
+        ? 'Begin het gesprek met een korte, natuurlijke openingszin die past bij de situatie.'
+        : _scenario!.language == 'da'
+            ? 'Start samtalen med en kort, naturlig åbningssætning, der passer til situationen.'
+            : 'Bitte starte das Gespräch mit einer kurzen, natürlichen Eröffnung passend zur Situation.';
+    final reply = await _callApi(opener);
     if (!mounted) return;
     setState(() {
       _loading = false;
@@ -160,6 +164,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
           'x-api-key': _apiKey!,
           'anthropic-version': '2023-06-01',
           'content-type': 'application/json',
+          'anthropic-dangerous-direct-browser-access': 'true',
         },
         body: jsonEncode({
           'model': 'claude-haiku-4-5-20251001',
@@ -415,8 +420,11 @@ class _InputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hint =
-        language == 'nl' ? 'Schrijf in het Nederlands…' : 'Schreib auf Deutsch…';
+    final hint = language == 'nl'
+        ? 'Schrijf in het Nederlands…'
+        : language == 'da'
+            ? 'Skriv på dansk…'
+            : 'Schreib auf Deutsch…';
     return Container(
       color: AppColors.surface,
       padding: EdgeInsets.only(

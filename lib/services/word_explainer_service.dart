@@ -39,7 +39,7 @@ class WordExplainerService {
     final clean = word.replaceAll(RegExp(r'[.,!?;:"""„]'), '');
     if (clean.isEmpty) return null;
 
-    final langName = langCode == 'nl' ? 'Dutch' : 'German';
+    final langName = langCode == 'nl' ? 'Dutch' : langCode == 'da' ? 'Danish' : 'German';
 
     try {
       final response = await http.post(
@@ -48,6 +48,7 @@ class WordExplainerService {
           'x-api-key': apiKey,
           'anthropic-version': '2023-06-01',
           'content-type': 'application/json',
+          'anthropic-dangerous-direct-browser-access': 'true',
         },
         body: jsonEncode({
           'model': 'claude-haiku-4-5-20251001',

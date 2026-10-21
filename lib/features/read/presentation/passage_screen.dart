@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:koala/content/danish/passages.dart';
 import 'package:koala/content/dutch/passages.dart';
 import 'package:koala/content/german/passages.dart';
 import 'package:koala/core/constants/app_colors.dart';
@@ -19,14 +20,14 @@ class _PassageScreenState extends State<PassageScreen> {
   bool _playing = false;
   int _currentSentence = -1;
 
-  String get _ttsLocale => _passage?.language == 'nl' ? 'nl-NL' : 'de-DE';
+  String get _ttsLocale => _passage?.language == 'nl' ? 'nl-NL' : _passage?.language == 'da' ? 'da-DK' : 'de-DE';
   String get _langCode => _passage?.language ?? 'de';
 
   @override
   void initState() {
     super.initState();
     try {
-      _passage = [...germanPassages, ...dutchPassages]
+      _passage = [...germanPassages, ...dutchPassages, ...danishPassages]
           .firstWhere((p) => p.id == widget.passageId);
     } catch (_) {}
     _initTts();

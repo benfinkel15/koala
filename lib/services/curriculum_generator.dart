@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:koala/content/danish/curriculum.dart';
 import 'package:koala/content/dutch/curriculum.dart';
 import 'package:koala/content/german/curriculum.dart';
 
@@ -19,6 +20,7 @@ class LanguageInfo {
 const supportedLanguages = [
   LanguageInfo(code: 'de', name: 'German', nativeName: 'Deutsch'),
   LanguageInfo(code: 'nl', name: 'Dutch', nativeName: 'Nederlands'),
+  LanguageInfo(code: 'da', name: 'Danish', nativeName: 'Dansk'),
   LanguageInfo(code: 'es', name: 'Spanish', nativeName: 'Español'),
   LanguageInfo(code: 'fr', name: 'French', nativeName: 'Français'),
   LanguageInfo(code: 'it', name: 'Italian', nativeName: 'Italiano'),
@@ -105,6 +107,12 @@ class CurriculumService {
     if (code == 'nl') {
       _currentCode = 'nl';
       _current = CurriculumData(units: _dutchUnits, exercises: dutchLessonExercises);
+      return _current!;
+    }
+
+    if (code == 'da') {
+      _currentCode = 'da';
+      _current = CurriculumData(units: _danishUnits, exercises: danishLessonExercises);
       return _current!;
     }
 
@@ -271,6 +279,69 @@ class CurriculumService {
         CurriculumLesson(id: 'u5_l3', title: 'Separable Verbs'),
         CurriculumLesson(id: 'u5_l4', title: 'Days & Months'),
         CurriculumLesson(id: 'u5_l5', title: 'Making Plans — Full Conversation'),
+      ],
+    ),
+  ];
+
+  static const _danishUnits = [
+    CurriculumUnit(
+      id: 'da_u1',
+      title: 'Unit 1 — Hej og farvel',
+      description: 'Say hello, introduce yourself, say where you\'re from',
+      lessons: [
+        CurriculumLesson(id: 'da_u1_l1', title: 'Hello and Goodbye'),
+        CurriculumLesson(id: 'da_u1_l2', title: 'My Name Is…'),
+        CurriculumLesson(id: 'da_u1_l3', title: 'The verb "at være" (to be)'),
+        CurriculumLesson(id: 'da_u1_l4', title: 'Where Are You From?'),
+        CurriculumLesson(id: 'da_u1_l5', title: 'First Conversation'),
+      ],
+    ),
+    CurriculumUnit(
+      id: 'da_u2',
+      title: 'Unit 2 — Familie & Fritid',
+      description: 'Talk about family, hobbies, and regular verbs',
+      lessons: [
+        CurriculumLesson(id: 'da_u2_l1', title: 'The verb "at have" (to have)'),
+        CurriculumLesson(id: 'da_u2_l2', title: 'Family Members'),
+        CurriculumLesson(id: 'da_u2_l3', title: 'Regular -er Verbs'),
+        CurriculumLesson(id: 'da_u2_l4', title: 'Hobbies'),
+        CurriculumLesson(id: 'da_u2_l5', title: 'Full Self-Introduction'),
+      ],
+    ),
+    CurriculumUnit(
+      id: 'da_u3',
+      title: 'Unit 3 — Mad & Café',
+      description: 'Order food, express preferences, use modal verbs',
+      lessons: [
+        CurriculumLesson(id: 'da_u3_l1', title: 'Food and Drink Vocabulary'),
+        CurriculumLesson(id: 'da_u3_l2', title: 'Kan godt lide — Expressing Preferences'),
+        CurriculumLesson(id: 'da_u3_l3', title: 'Ordering at a Café'),
+        CurriculumLesson(id: 'da_u3_l4', title: 'kan and skal'),
+        CurriculumLesson(id: 'da_u3_l5', title: 'At the Café — Full Interaction'),
+      ],
+    ),
+    CurriculumUnit(
+      id: 'da_u4',
+      title: 'Unit 4 — Vej & Transport',
+      description: 'Count, ask for directions, use transport, navigate the city',
+      lessons: [
+        CurriculumLesson(id: 'da_u4_l1', title: 'Numbers 1–20'),
+        CurriculumLesson(id: 'da_u4_l2', title: 'Left, Right, Straight Ahead'),
+        CurriculumLesson(id: 'da_u4_l3', title: 'Transport — Bus, Train, Bike'),
+        CurriculumLesson(id: 'da_u4_l4', title: 'Prepositions of Place'),
+        CurriculumLesson(id: 'da_u4_l5', title: 'Getting Around — Full Conversation'),
+      ],
+    ),
+    CurriculumUnit(
+      id: 'da_u5',
+      title: 'Unit 5 — Hverdag & Tid',
+      description: 'Tell the time, talk about routines, make plans',
+      lessons: [
+        CurriculumLesson(id: 'da_u5_l1', title: 'Telling the Time'),
+        CurriculumLesson(id: 'da_u5_l2', title: 'Daily Routine'),
+        CurriculumLesson(id: 'da_u5_l3', title: 'Particle Verbs'),
+        CurriculumLesson(id: 'da_u5_l4', title: 'Days & Months'),
+        CurriculumLesson(id: 'da_u5_l5', title: 'Making Plans — Full Conversation'),
       ],
     ),
   ];

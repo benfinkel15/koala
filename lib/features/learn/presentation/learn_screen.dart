@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:koala/core/constants/app_colors.dart';
+import 'package:koala/widgets/city_banner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ScenarioConfig {
@@ -11,7 +12,7 @@ class ScenarioConfig {
   final String difficulty;
   final IconData icon;
   final String systemPrompt;
-  final String language; // 'de' or 'nl'
+  final String language; // 'de', 'nl', or 'da'
 
   const ScenarioConfig({
     required this.id,
@@ -114,6 +115,96 @@ const allScenarios = [
     icon: Icons.apartment,
     systemPrompt:
         'You are a German landlord showing an apartment to a potential tenant. Speak only in German. After every response add a blank line then an English translation in italics (prefix with "🇬🇧 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tipp:". Keep responses short — 1 to 3 sentences.',
+  ),
+
+  // ─── Danish ──────────────────────────────────────────────────────────────
+  ScenarioConfig(
+    id: 'da_cafe',
+    language: 'da',
+    title: 'På caféen',
+    description: 'Bestil kaffe og kage hos en venlig tjener',
+    character: 'Danish café waiter',
+    difficulty: 'Beginner',
+    icon: Icons.coffee,
+    systemPrompt:
+        'You are a friendly waiter at a cozy Danish café called "Den Lille Kop". Speak only in Danish. After every response add a blank line then an English translation in italics (prefix with "🇩🇰 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'da_meeting',
+    language: 'da',
+    title: 'At møde nogen',
+    description: 'Præsenter dig selv og lær en ny person at kende',
+    character: 'Danish acquaintance',
+    difficulty: 'Beginner',
+    icon: Icons.waving_hand,
+    systemPrompt:
+        'You are a friendly Danish person meeting someone new at a community event. Speak only in Danish. After every response add a blank line then an English translation in italics (prefix with "🇩🇰 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'da_market',
+    language: 'da',
+    title: 'På markedet',
+    description: 'Køb friske grøntsager og brød ved en markedsstand',
+    character: 'Market vendor',
+    difficulty: 'Beginner',
+    icon: Icons.storefront,
+    systemPrompt:
+        'You are a cheerful vendor at a Danish farmers market selling fresh produce and bread. Speak only in Danish. After every response add a blank line then an English translation in italics (prefix with "🇩🇰 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'da_train',
+    language: 'da',
+    title: 'På stationen',
+    description: 'Køb en billet og find dit perron',
+    character: 'DSB station staff',
+    difficulty: 'Intermediate',
+    icon: Icons.train,
+    systemPrompt:
+        'You are a helpful ticket agent at a Danish train station (DSB). Speak only in Danish. After every response add a blank line then an English translation in italics (prefix with "🇩🇰 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'da_plans',
+    language: 'da',
+    title: 'Laver planer',
+    description: 'Aftale at mødes med en ven i weekenden',
+    character: 'Danish friend',
+    difficulty: 'Intermediate',
+    icon: Icons.calendar_today,
+    systemPrompt:
+        'You are a good Danish friend making plans for the weekend. Speak only in Danish. After every response add a blank line then an English translation in italics (prefix with "🇩🇰 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'da_doctor',
+    language: 'da',
+    title: 'Hos lægen',
+    description: 'Beskriv dine symptomer til en dansk læge',
+    character: 'Praktiserende læge',
+    difficulty: 'Intermediate',
+    icon: Icons.local_hospital,
+    systemPrompt:
+        'You are a friendly praktiserende læge (GP) at a Danish medical practice. Speak only in Danish. After every response add a blank line then an English translation in italics (prefix with "🇩🇰 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'da_interview',
+    language: 'da',
+    title: 'Jobsamtale',
+    description: 'Besvar spørgsmål om dig selv og din erfaring',
+    character: 'HR manager',
+    difficulty: 'Advanced',
+    icon: Icons.work,
+    systemPrompt:
+        'You are a professional HR manager at a Danish company conducting a job interview. Speak only in Danish. After every response add a blank line then an English translation in italics (prefix with "🇩🇰 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'da_apartment',
+    language: 'da',
+    title: 'At leje en lejlighed',
+    description: 'Se en lejlighed og diskutér detaljerne',
+    character: 'Udlejer',
+    difficulty: 'Advanced',
+    icon: Icons.apartment,
+    systemPrompt:
+        'You are a Danish landlord showing an apartment to a potential tenant. Speak only in Danish. After every response add a blank line then an English translation in italics (prefix with "🇩🇰 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
   ),
 
   // ─── Dutch ────────────────────────────────────────────────────────────────
@@ -260,6 +351,9 @@ class _LearnScreenState extends State<LearnScreen> {
               ),
             ),
           ),
+          SliverToBoxAdapter(
+            child: CityBanner(langCode: _lang),
+          ),
           SliverPadding(
             padding: const EdgeInsets.all(16),
             sliver: SliverGrid(
@@ -293,6 +387,8 @@ class _LanguagePicker extends StatelessWidget {
         _LangChip(flag: '🇩🇪', label: 'German', code: 'de', selected: selected, onTap: onSelect),
         const SizedBox(width: 8),
         _LangChip(flag: '🇳🇱', label: 'Dutch', code: 'nl', selected: selected, onTap: onSelect),
+        const SizedBox(width: 8),
+        _LangChip(flag: '🇩🇰', label: 'Danish', code: 'da', selected: selected, onTap: onSelect),
       ],
     );
   }

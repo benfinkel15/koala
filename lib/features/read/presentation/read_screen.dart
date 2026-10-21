@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:koala/content/danish/passages.dart';
 import 'package:koala/content/dutch/passages.dart';
 import 'package:koala/content/german/passages.dart';
 import 'package:koala/core/constants/app_colors.dart';
@@ -41,7 +42,7 @@ class _ReadScreenState extends State<ReadScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final passages = _lang == 'nl' ? dutchPassages : germanPassages;
+    final passages = _lang == 'nl' ? dutchPassages : _lang == 'da' ? danishPassages : germanPassages;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -56,6 +57,8 @@ class _ReadScreenState extends State<ReadScreen> {
                 _LangChip(flag: '🇩🇪', label: 'German', code: 'de', selected: _lang, onTap: _setLanguage),
                 const SizedBox(width: 8),
                 _LangChip(flag: '🇳🇱', label: 'Dutch', code: 'nl', selected: _lang, onTap: _setLanguage),
+                const SizedBox(width: 8),
+                _LangChip(flag: '🇩🇰', label: 'Danish', code: 'da', selected: _lang, onTap: _setLanguage),
               ],
             ),
           ),
