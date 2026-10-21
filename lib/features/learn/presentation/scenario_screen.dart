@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/features/learn/presentation/learn_screen.dart';
 import 'package:koala/services/audio_service.dart';
+import 'package:koala/services/usage_tracker.dart';
 import 'package:koala/widgets/word_drill_sheet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,10 +17,13 @@ class ScenarioScreen extends StatefulWidget {
 }
 
 class _ScenarioScreenState extends State<ScenarioScreen> {
+  static const _embedded = String.fromEnvironment('ANTHROPIC_KEY', defaultValue: '');
+
   ScenarioConfig? _scenario;
   String? _apiKey;
   final List<_Msg> _messages = [];
   bool _loading = false;
+  bool _overLimit = false;
   final _input = TextEditingController();
   final _scroll = ScrollController();
 
@@ -40,6 +44,12 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
   }
 
   Future<void> _loadKey() async {
+    if (_embedded.isNotEmpty) {
+      if (!mounted) return;
+      setState(() => _apiKey = _embedded);
+      _sendOpener();
+      return;
+    }
     final prefs = await SharedPreferences.getInstance();
     final key = prefs.getString('anthropic_api_key');
     if (!mounted) return;
@@ -88,8 +98,13 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
 
   Future<void> _sendOpener() async {
     if (_scenario == null || _apiKey == null) return;
+    if (await UsageTracker.isOverLimit()) {
+      if (mounted) setState(() => _overLimit = true);
+      return;
+    }
     setState(() => _loading = true);
-    final reply = await _callApi('Bitte starte das Gespräch mit einer kurzen, natürlichen Eröffnung passend zur Situation.');
+    final reply = await _callApi(
+        'Bitte starte das Gespräch mit einer kurzen, natürlichen Eröffnung passend zur Situation.');
     if (!mounted) return;
     setState(() {
       _loading = false;
@@ -98,15 +113,17 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     _scrollToBottom();
     if (reply != null) {
       final firstLine = reply.split('\n').first.trim();
-      if (firstLine.isNotEmpty) {
-        AudioService().speak(firstLine, langCode: _scenario!.language);
-      }
+      if (firstLine.isNotEmpty) AudioService().speak(firstLine, langCode: _scenario!.language);
     }
   }
 
   Future<void> _send() async {
     final text = _input.text.trim();
     if (text.isEmpty || _loading || _apiKey == null) return;
+    if (await UsageTracker.isOverLimit()) {
+      if (mounted) setState(() => _overLimit = true);
+      return;
+    }
     _input.clear();
     setState(() {
       _messages.add(_Msg(role: _Role.user, content: text));
@@ -122,9 +139,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     _scrollToBottom();
     if (reply != null) {
       final firstLine = reply.split('\n').first.trim();
-      if (firstLine.isNotEmpty) {
-        AudioService().speak(firstLine, langCode: _scenario!.language);
-      }
+      if (firstLine.isNotEmpty) AudioService().speak(firstLine, langCode: _scenario!.language);
     }
   }
 
@@ -155,6 +170,13 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
       );
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body) as Map<String, dynamic>;
+        final usage = data['usage'] as Map<String, dynamic>?;
+        if (usage != null) {
+          await UsageTracker.record(
+            usage['input_tokens'] as int? ?? 0,
+            usage['output_tokens'] as int? ?? 0,
+          );
+        }
         return (data['content'] as List).first['text'] as String;
       }
     } catch (_) {}
@@ -199,6 +221,25 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
       ),
       body: Column(
         children: [
+          if (_overLimit)
+            Container(
+              width: double.infinity,
+              color: AppColors.incorrect.withValues(alpha: 0.12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(
+                children: [
+                  const Icon(Icons.block, size: 16, color: AppColors.incorrect),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Monthly \$${UsageTracker.limitDollars.toStringAsFixed(0)} AI limit reached — resets on the 1st.',
+                      style: const TextStyle(
+                          color: AppColors.incorrect, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           Expanded(
             child: ListView.builder(
               controller: _scroll,
@@ -213,7 +254,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
           ),
           _InputBar(
             controller: _input,
-            loading: _loading,
+            loading: _loading || _overLimit,
             onSend: _send,
             language: scenario.language,
           ),
