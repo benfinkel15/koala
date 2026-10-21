@@ -241,5 +241,29 @@ class CurriculumService {
         CurriculumLesson(id: 'u3_l5', title: 'At the Café — Full Interaction'),
       ],
     ),
+    CurriculumUnit(
+      id: 'u4',
+      title: 'Unit 4 — Directions & Getting Around',
+      description: 'Count, ask for directions, use transport, navigate the city',
+      lessons: [
+        CurriculumLesson(id: 'u4_l1', title: 'Numbers 1–20'),
+        CurriculumLesson(id: 'u4_l2', title: 'Left, Right, Straight Ahead'),
+        CurriculumLesson(id: 'u4_l3', title: 'Transport — Bus, Train, Car'),
+        CurriculumLesson(id: 'u4_l4', title: 'Prepositions of Place'),
+        CurriculumLesson(id: 'u4_l5', title: 'Getting Around — Full Conversation'),
+      ],
+    ),
+    CurriculumUnit(
+      id: 'u5',
+      title: 'Unit 5 — Daily Life & Time',
+      description: 'Tell the time, talk about routines, make plans',
+      lessons: [
+        CurriculumLesson(id: 'u5_l1', title: 'Telling the Time'),
+        CurriculumLesson(id: 'u5_l2', title: 'Daily Routine'),
+        CurriculumLesson(id: 'u5_l3', title: 'Separable Verbs'),
+        CurriculumLesson(id: 'u5_l4', title: 'Days & Months'),
+        CurriculumLesson(id: 'u5_l5', title: 'Making Plans — Full Conversation'),
+      ],
+    ),
   ];
 }

@@ -1,9 +1,8 @@
 const Map<String, List<Map<String, dynamic>>> lessonExercises = {
   // ─────────────────────────────────────────────
-  // UNIT 1
+  // UNIT 1 — Greetings & Introductions
   // ─────────────────────────────────────────────
 
-  // u1_l1 — Hello and Goodbye
   'u1_l1': [
     {
       'type': 'multipleChoice',
@@ -37,7 +36,6 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
     },
   ],
 
-  // u1_l2 — My Name Is…
   'u1_l2': [
     {
       'type': 'multipleChoice',
@@ -81,7 +79,6 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
     },
   ],
 
-  // u1_l3 — The verb "sein"
   'u1_l3': [
     {
       'type': 'conjugationTable',
@@ -106,7 +103,7 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Build the sentence: "You (informal) are tired."',
       'target': 'Du bist müde.',
-      'tiles': ['Du', 'bist', 'müde', 'bin', 'ist', '.'],
+      'tiles': ['Du', 'bist', 'müde', 'bin', 'ist'],
     },
     {
       'type': 'fillBlank',
@@ -116,7 +113,6 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
     },
   ],
 
-  // u1_l4 — Where Are You From?
   'u1_l4': [
     {
       'type': 'multipleChoice',
@@ -133,7 +129,7 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Say "I come from Germany."',
       'target': 'Ich komme aus Deutschland.',
-      'tiles': ['Ich', 'komme', 'aus', 'Deutschland', 'bin', 'nach', '.'],
+      'tiles': ['Ich', 'komme', 'aus', 'Deutschland', 'bin', 'nach'],
     },
     {
       'type': 'fillBlank',
@@ -151,17 +147,16 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Ask "Where are you from?" formally.',
       'target': 'Woher kommen Sie?',
-      'tiles': ['Woher', 'kommen', 'Sie', 'kommst', 'du', '?'],
+      'tiles': ['Woher', 'kommen', 'Sie', 'kommst', 'du'],
     },
   ],
 
-  // u1_l5 — First Conversation
   'u1_l5': [
     {
       'type': 'tapToBuild',
       'prompt': 'Build a greeting and introduction: "Hello, my name is Max."',
       'target': 'Hallo, ich heiße Max.',
-      'tiles': ['Hallo', ',', 'ich', 'heiße', 'Max', '.', 'bin', 'du'],
+      'tiles': ['Hallo', 'ich', 'heiße', 'Max', 'bin', 'du'],
     },
     {
       'type': 'multipleChoice',
@@ -184,7 +179,7 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Say goodbye formally.',
       'target': 'Auf Wiedersehen!',
-      'tiles': ['Auf', 'Wiedersehen', '!', 'Tschüss', 'Guten'],
+      'tiles': ['Auf', 'Wiedersehen', 'Tschüss', 'Guten'],
     },
     {
       'type': 'multipleChoice',
@@ -200,10 +195,9 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
   ],
 
   // ─────────────────────────────────────────────
-  // UNIT 2
+  // UNIT 2 — Family & Hobbies
   // ─────────────────────────────────────────────
 
-  // u2_l1 — The verb "haben"
   'u2_l1': [
     {
       'type': 'conjugationTable',
@@ -228,7 +222,7 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Say "I have a dog."',
       'target': 'Ich habe einen Hund.',
-      'tiles': ['Ich', 'habe', 'einen', 'Hund', '.', 'hast', 'ein'],
+      'tiles': ['Ich', 'habe', 'einen', 'Hund', 'hast', 'ein'],
     },
     {
       'type': 'fillBlank',
@@ -238,7 +232,6 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
     },
   ],
 
-  // u2_l2 — Family Members
   'u2_l2': [
     {
       'type': 'multipleChoice',
@@ -250,7 +243,7 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Say "I have a sister."',
       'target': 'Ich habe eine Schwester.',
-      'tiles': ['Ich', 'habe', 'eine', 'Schwester', '.', 'einen', 'Bruder'],
+      'tiles': ['Ich', 'habe', 'eine', 'Schwester', 'einen', 'Bruder'],
     },
     {
       'type': 'fillBlank',
@@ -268,11 +261,10 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Say "My mother is nice."',
       'target': 'Meine Mutter ist nett.',
-      'tiles': ['Meine', 'Mutter', 'ist', 'nett', '.', 'Mein', 'Vater'],
+      'tiles': ['Meine', 'Mutter', 'ist', 'nett', 'Mein', 'Vater'],
     },
   ],
 
-  // u2_l3 — Regular -en Verbs
   'u2_l3': [
     {
       'type': 'conjugationTable',
@@ -297,7 +289,7 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Say "She cooks every day."',
       'target': 'Sie kocht jeden Tag.',
-      'tiles': ['Sie', 'kocht', 'jeden', 'Tag', '.', 'kochen', 'koche'],
+      'tiles': ['Sie', 'kocht', 'jeden', 'Tag', 'kochen', 'koche'],
     },
     {
       'type': 'fillBlank',
@@ -307,7 +299,6 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
     },
   ],
 
-  // u2_l4 — Hobbies
   'u2_l4': [
     {
       'type': 'multipleChoice',
@@ -324,7 +315,7 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Say "I like reading."',
       'target': 'Ich lese gerne.',
-      'tiles': ['Ich', 'lese', 'gerne', '.', 'spiele', 'nicht'],
+      'tiles': ['Ich', 'lese', 'gerne', 'spiele', 'nicht'],
     },
     {
       'type': 'fillBlank',
@@ -347,17 +338,16 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Say "He likes playing tennis."',
       'target': 'Er spielt gerne Tennis.',
-      'tiles': ['Er', 'spielt', 'gerne', 'Tennis', '.', 'spiele', 'sie'],
+      'tiles': ['Er', 'spielt', 'gerne', 'Tennis', 'spiele', 'sie'],
     },
   ],
 
-  // u2_l5 — Full Self-Introduction
   'u2_l5': [
     {
       'type': 'tapToBuild',
       'prompt': 'Build: "Hello, I am 20 years old."',
       'target': 'Hallo, ich bin 20 Jahre alt.',
-      'tiles': ['Hallo', ',', 'ich', 'bin', '20', 'Jahre', 'alt', '.', 'habe', 'heiße'],
+      'tiles': ['Hallo', 'ich', 'bin', '20', 'Jahre', 'alt', 'habe', 'heiße'],
     },
     {
       'type': 'multipleChoice',
@@ -380,7 +370,7 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Say "My name is Felix and I come from Austria."',
       'target': 'Ich heiße Felix und ich komme aus Österreich.',
-      'tiles': ['Ich', 'heiße', 'Felix', 'und', 'ich', 'komme', 'aus', 'Österreich', '.', 'bin', 'Deutschland'],
+      'tiles': ['Ich', 'heiße', 'Felix', 'und', 'ich', 'komme', 'aus', 'Österreich', 'bin', 'Deutschland'],
     },
     {
       'type': 'multipleChoice',
@@ -396,10 +386,9 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
   ],
 
   // ─────────────────────────────────────────────
-  // UNIT 3
+  // UNIT 3 — Food & Café
   // ─────────────────────────────────────────────
 
-  // u3_l1 — Food and Drink Vocabulary
   'u3_l1': [
     {
       'type': 'multipleChoice',
@@ -411,7 +400,7 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Say "I drink tea."',
       'target': 'Ich trinke Tee.',
-      'tiles': ['Ich', 'trinke', 'Tee', '.', 'esse', 'Kaffee'],
+      'tiles': ['Ich', 'trinke', 'Tee', 'esse', 'Kaffee'],
     },
     {
       'type': 'fillBlank',
@@ -429,11 +418,10 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Say "The water is cold."',
       'target': 'Das Wasser ist kalt.',
-      'tiles': ['Das', 'Wasser', 'ist', 'kalt', '.', 'Der', 'Die'],
+      'tiles': ['Das', 'Wasser', 'ist', 'kalt', 'Der', 'Die'],
     },
   ],
 
-  // u3_l2 — mögen
   'u3_l2': [
     {
       'type': 'conjugationTable',
@@ -463,7 +451,7 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Say "She doesn\'t like tea."',
       'target': 'Sie mag Tee nicht.',
-      'tiles': ['Sie', 'mag', 'Tee', 'nicht', '.', 'magst', 'kein'],
+      'tiles': ['Sie', 'mag', 'Tee', 'nicht', 'magst', 'kein'],
     },
     {
       'type': 'fillBlank',
@@ -473,7 +461,6 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
     },
   ],
 
-  // u3_l3 — Ordering at a Café
   'u3_l3': [
     {
       'type': 'multipleChoice',
@@ -490,7 +477,7 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Ask for the bill politely.',
       'target': 'Die Rechnung bitte.',
-      'tiles': ['Die', 'Rechnung', 'bitte', '.', 'Das', 'Menü'],
+      'tiles': ['Die', 'Rechnung', 'bitte', 'Das', 'Menü'],
     },
     {
       'type': 'fillBlank',
@@ -513,11 +500,10 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Say "I would like a piece of cake."',
       'target': 'Ich möchte ein Stück Kuchen.',
-      'tiles': ['Ich', 'möchte', 'ein', 'Stück', 'Kuchen', '.', 'einen', 'mag'],
+      'tiles': ['Ich', 'möchte', 'ein', 'Stück', 'Kuchen', 'einen', 'mag'],
     },
   ],
 
-  // u3_l4 — können and müssen
   'u3_l4': [
     {
       'type': 'conjugationTable',
@@ -547,7 +533,7 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Say "You must pay now." (informal)',
       'target': 'Du musst jetzt bezahlen.',
-      'tiles': ['Du', 'musst', 'jetzt', 'bezahlen', '.', 'kannst', 'zahlen'],
+      'tiles': ['Du', 'musst', 'jetzt', 'bezahlen', 'kannst', 'zahlen'],
     },
     {
       'type': 'fillBlank',
@@ -557,13 +543,12 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
     },
   ],
 
-  // u3_l5 — At the Café — Full Interaction
   'u3_l5': [
     {
       'type': 'tapToBuild',
       'prompt': 'Order: "I would like a coffee and a piece of cake."',
       'target': 'Ich möchte einen Kaffee und ein Stück Kuchen.',
-      'tiles': ['Ich', 'möchte', 'einen', 'Kaffee', 'und', 'ein', 'Stück', 'Kuchen', '.', 'mag', 'eine'],
+      'tiles': ['Ich', 'möchte', 'einen', 'Kaffee', 'und', 'ein', 'Stück', 'Kuchen', 'mag', 'eine'],
     },
     {
       'type': 'multipleChoice',
@@ -597,7 +582,384 @@ const Map<String, List<Map<String, dynamic>>> lessonExercises = {
       'type': 'tapToBuild',
       'prompt': 'Ask for the bill.',
       'target': 'Die Rechnung bitte!',
-      'tiles': ['Die', 'Rechnung', 'bitte', '!', 'Das', 'Menü', 'Bezahlen'],
+      'tiles': ['Die', 'Rechnung', 'bitte', 'Das', 'Menü', 'Bezahlen'],
+    },
+  ],
+
+  // ─────────────────────────────────────────────
+  // UNIT 4 — Directions & Getting Around
+  // ─────────────────────────────────────────────
+
+  'u4_l1': [
+    {
+      'type': 'multipleChoice',
+      'prompt': 'What is "zwölf" in numbers?',
+      'options': ['11', '12', '13', '20'],
+      'correct': 1,
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "I am twenty years old."',
+      'target': 'Ich bin zwanzig Jahre alt.',
+      'tiles': ['Ich', 'bin', 'zwanzig', 'Jahre', 'alt', 'dreißig', 'heiße'],
+    },
+    {
+      'type': 'fillBlank',
+      'sentence': 'Ich habe ___ Geschwister. (3)',
+      'correct': 'drei',
+      'hint': 'the number 3 as a word',
+    },
+    {
+      'type': 'multipleChoice',
+      'prompt': 'Which number comes after "neunzehn"?',
+      'options': ['einundzwanzig', 'zwanzig', 'achtzehn', 'dreißig'],
+      'correct': 1,
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "There are fifteen people."',
+      'target': 'Es gibt fünfzehn Personen.',
+      'tiles': ['Es', 'gibt', 'fünfzehn', 'Personen', 'zwölf', 'sind'],
+    },
+  ],
+
+  'u4_l2': [
+    {
+      'type': 'multipleChoice',
+      'prompt': 'What does "links" mean?',
+      'options': ['straight ahead', 'right', 'left', 'behind'],
+      'correct': 2,
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "Go straight ahead." (formal)',
+      'target': 'Gehen Sie geradeaus.',
+      'tiles': ['Gehen', 'Sie', 'geradeaus', 'links', 'rechts'],
+    },
+    {
+      'type': 'fillBlank',
+      'sentence': 'Gehen Sie ___ rechts.',
+      'correct': 'nach',
+      'hint': '"turn right" = gehen Sie ___ rechts',
+    },
+    {
+      'type': 'multipleChoice',
+      'prompt': 'Someone says "Es ist auf der linken Seite." Where is it?',
+      'options': ['On the right side', 'Behind you', 'On the left side', 'Straight ahead'],
+      'correct': 2,
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Ask "Where is the train station?"',
+      'target': 'Wo ist der Bahnhof?',
+      'tiles': ['Wo', 'ist', 'der', 'Bahnhof', 'die', 'Bushaltestelle'],
+    },
+  ],
+
+  'u4_l3': [
+    {
+      'type': 'multipleChoice',
+      'prompt': 'What is "der Zug"?',
+      'options': ['The bus', 'The car', 'The train', 'The tram'],
+      'correct': 2,
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "I take the bus."',
+      'target': 'Ich nehme den Bus.',
+      'tiles': ['Ich', 'nehme', 'den', 'Bus', 'die', 'Bahn', 'fahre'],
+    },
+    {
+      'type': 'fillBlank',
+      'sentence': 'Ich fahre ___ der U-Bahn.',
+      'correct': 'mit',
+      'hint': '"by" transport = fahren ___ + dative',
+    },
+    {
+      'type': 'multipleChoice',
+      'prompt': 'How do you say "I drive by car"?',
+      'options': [
+        'Ich fahre mit dem Auto.',
+        'Ich nehme das Auto.',
+        'Ich bin mit dem Auto.',
+        'Ich gehe mit dem Auto.',
+      ],
+      'correct': 0,
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Ask "How long does it take?"',
+      'target': 'Wie lange dauert es?',
+      'tiles': ['Wie', 'lange', 'dauert', 'es', 'weit', 'ist'],
+    },
+  ],
+
+  'u4_l4': [
+    {
+      'type': 'multipleChoice',
+      'prompt': 'Which preposition means "next to"?',
+      'options': ['auf', 'vor', 'neben', 'zwischen'],
+      'correct': 2,
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "The supermarket is near here."',
+      'target': 'Der Supermarkt ist hier in der Nähe.',
+      'tiles': ['Der', 'Supermarkt', 'ist', 'hier', 'in', 'der', 'Nähe', 'weit'],
+    },
+    {
+      'type': 'fillBlank',
+      'sentence': 'Das Buch liegt ___ dem Tisch.',
+      'correct': 'auf',
+      'hint': 'preposition meaning "on top of"',
+    },
+    {
+      'type': 'multipleChoice',
+      'prompt': 'What does "gegenüber" mean?',
+      'options': ['around the corner', 'next to', 'opposite / across from', 'behind'],
+      'correct': 2,
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "The café is on the left."',
+      'target': 'Das Café ist links.',
+      'tiles': ['Das', 'Café', 'ist', 'links', 'rechts', 'Der'],
+    },
+  ],
+
+  'u4_l5': [
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "Excuse me, where is the bus stop?"',
+      'target': 'Entschuldigung, wo ist die Bushaltestelle?',
+      'tiles': ['Entschuldigung', 'wo', 'ist', 'die', 'Bushaltestelle', 'Bahnhof', 'der'],
+    },
+    {
+      'type': 'multipleChoice',
+      'prompt': 'You ask "Wie komme ich zum Bahnhof?" What are you asking?',
+      'options': [
+        'How far is the train station?',
+        'How do I get to the train station?',
+        'When does the train leave?',
+        'Where can I buy a ticket?',
+      ],
+      'correct': 1,
+    },
+    {
+      'type': 'fillBlank',
+      'sentence': 'Gehen Sie ___ links und dann geradeaus.',
+      'correct': 'nach',
+      'hint': '"turn left" = gehen Sie ___ links',
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "Take the first street on the right." (formal)',
+      'target': 'Nehmen Sie die erste Straße rechts.',
+      'tiles': ['Nehmen', 'Sie', 'die', 'erste', 'Straße', 'rechts', 'links', 'zweite'],
+    },
+    {
+      'type': 'multipleChoice',
+      'prompt': 'What does "ungefähr zehn Minuten" mean?',
+      'options': [
+        'Exactly ten minutes',
+        'More than ten minutes',
+        'About ten minutes',
+        'Less than ten minutes',
+      ],
+      'correct': 2,
+    },
+  ],
+
+  // ─────────────────────────────────────────────
+  // UNIT 5 — Daily Life & Time
+  // ─────────────────────────────────────────────
+
+  'u5_l1': [
+    {
+      'type': 'multipleChoice',
+      'prompt': 'How do you ask "What time is it?"',
+      'options': [
+        'Wie heißt es?',
+        'Wie spät ist es?',
+        'Was ist die Zeit?',
+        'Wann ist es?',
+      ],
+      'correct': 1,
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "It is three o\'clock."',
+      'target': 'Es ist drei Uhr.',
+      'tiles': ['Es', 'ist', 'drei', 'Uhr', 'vier', 'zwei'],
+    },
+    {
+      'type': 'fillBlank',
+      'sentence': '___ spät ist es?',
+      'correct': 'Wie',
+      'hint': 'question word for "what time is it"',
+    },
+    {
+      'type': 'multipleChoice',
+      'prompt': '"Es ist halb vier." What time is it?',
+      'options': ['4:00', '4:30', '3:30', '3:00'],
+      'correct': 2,
+      'explanation': 'In German, "halb vier" means half an hour before four — so 3:30.',
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "The train leaves at eight."',
+      'target': 'Der Zug fährt um acht Uhr ab.',
+      'tiles': ['Der', 'Zug', 'fährt', 'um', 'acht', 'Uhr', 'ab', 'neun', 'kommt'],
+    },
+  ],
+
+  'u5_l2': [
+    {
+      'type': 'multipleChoice',
+      'prompt': 'What does "aufstehen" mean?',
+      'options': ['To go to sleep', 'To get up', 'To eat breakfast', 'To work'],
+      'correct': 1,
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "I wake up at seven."',
+      'target': 'Ich wache um sieben Uhr auf.',
+      'tiles': ['Ich', 'wache', 'um', 'sieben', 'Uhr', 'auf', 'schlafe', 'acht'],
+    },
+    {
+      'type': 'fillBlank',
+      'sentence': 'Ich ___ jeden Morgen Kaffee.',
+      'correct': 'trinke',
+      'hint': 'trinken (ich form)',
+    },
+    {
+      'type': 'multipleChoice',
+      'prompt': 'What is the correct order of a typical German morning?',
+      'options': [
+        'arbeiten → aufwachen → frühstücken → schlafen',
+        'aufwachen → frühstücken → arbeiten → schlafen',
+        'frühstücken → aufwachen → schlafen → arbeiten',
+        'schlafen → arbeiten → frühstücken → aufwachen',
+      ],
+      'correct': 1,
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "I go to bed at eleven."',
+      'target': 'Ich gehe um elf Uhr schlafen.',
+      'tiles': ['Ich', 'gehe', 'um', 'elf', 'Uhr', 'schlafen', 'zehn', 'aufstehen'],
+    },
+  ],
+
+  'u5_l3': [
+    {
+      'type': 'multipleChoice',
+      'prompt': 'In "Ich stehe früh auf", which part is the separable prefix?',
+      'options': ['Ich', 'stehe', 'früh', 'auf'],
+      'correct': 3,
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "I open the window."',
+      'target': 'Ich mache das Fenster auf.',
+      'tiles': ['Ich', 'mache', 'das', 'Fenster', 'auf', 'zu', 'öffne'],
+    },
+    {
+      'type': 'fillBlank',
+      'sentence': 'Ich ___ das Licht an.',
+      'correct': 'mache',
+      'hint': 'anmachen (ich form) — "to turn on"',
+    },
+    {
+      'type': 'conjugationTable',
+      'verb': 'aufstehen',
+      'tense': 'Präsens',
+      'pronouns': ['ich', 'du', 'er/sie/es', 'wir', 'ihr', 'sie/Sie'],
+      'answers': ['stehe auf', 'stehst auf', 'steht auf', 'stehen auf', 'steht auf', 'stehen auf'],
+    },
+    {
+      'type': 'multipleChoice',
+      'prompt': 'In a main clause, where does the separable prefix go?',
+      'options': [
+        'Right after the subject',
+        'Directly after the verb',
+        'At the very end of the sentence',
+        'Before the subject',
+      ],
+      'correct': 2,
+    },
+  ],
+
+  'u5_l4': [
+    {
+      'type': 'multipleChoice',
+      'prompt': 'What day comes after "Mittwoch"?',
+      'options': ['Dienstag', 'Freitag', 'Donnerstag', 'Montag'],
+      'correct': 2,
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "I work on Monday."',
+      'target': 'Ich arbeite am Montag.',
+      'tiles': ['Ich', 'arbeite', 'am', 'Montag', 'Dienstag', 'gehe'],
+    },
+    {
+      'type': 'fillBlank',
+      'sentence': 'Im ___ ist Weihnachten.',
+      'correct': 'Dezember',
+      'hint': 'the month of Christmas',
+    },
+    {
+      'type': 'multipleChoice',
+      'prompt': 'How do you say "every Friday" (as a regular habit)?',
+      'options': ['am Freitags', 'freitags', 'auf Freitag', 'in Freitag'],
+      'correct': 1,
+      'explanation': 'Adding "-s" to a day of the week makes it mean "every [day]" — freitags = every Friday.',
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "My birthday is in March."',
+      'target': 'Mein Geburtstag ist im März.',
+      'tiles': ['Mein', 'Geburtstag', 'ist', 'im', 'März', 'April', 'der'],
+    },
+  ],
+
+  'u5_l5': [
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Ask "Are you free on Saturday?" (informal)',
+      'target': 'Hast du am Samstag Zeit?',
+      'tiles': ['Hast', 'du', 'am', 'Samstag', 'Zeit', 'Sonntag', 'bist'],
+    },
+    {
+      'type': 'multipleChoice',
+      'prompt': 'Someone asks "Wollen wir uns treffen?" What are they suggesting?',
+      'options': [
+        'Shall we go eat?',
+        'Let\'s meet up.',
+        'Are you busy?',
+        'Do you want to call?',
+      ],
+      'correct': 1,
+    },
+    {
+      'type': 'fillBlank',
+      'sentence': 'Wir ___ uns um drei Uhr.',
+      'correct': 'treffen',
+      'hint': 'sich treffen (wir form) — "to meet"',
+    },
+    {
+      'type': 'tapToBuild',
+      'prompt': 'Say "I can\'t on Wednesday."',
+      'target': 'Am Mittwoch kann ich nicht.',
+      'tiles': ['Am', 'Mittwoch', 'kann', 'ich', 'nicht', 'Donnerstag', 'muss'],
+    },
+    {
+      'type': 'multipleChoice',
+      'prompt': 'How do you enthusiastically confirm plans? "Das ___ gut!"',
+      'options': ['macht', 'klingt', 'ist', 'hat'],
+      'correct': 1,
+      'explanation': '"Das klingt gut!" means "That sounds good!" — klingen = to sound.',
     },
   ],
 };

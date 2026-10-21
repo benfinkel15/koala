@@ -345,12 +345,10 @@ class _TapToBuildState extends State<_TapToBuild> {
   }
 
   void _check() {
-    final answer = _selected.fold<String>('', (buf, tile) {
-      if (buf.isEmpty) return tile;
-      const punct = {'.', ',', '!', '?', ':', ';'};
-      return punct.contains(tile) ? '$buf$tile' : '$buf $tile';
-    });
-    widget.onAnswer(answer == widget.exercise['target']);
+    String normalize(String s) =>
+        s.replaceAll(RegExp(r'[.,!?;:]'), '').replaceAll(RegExp(r'\s+'), ' ').trim();
+    final answer = _selected.join(' ');
+    widget.onAnswer(normalize(answer) == normalize(widget.exercise['target'] as String));
   }
 
   @override
