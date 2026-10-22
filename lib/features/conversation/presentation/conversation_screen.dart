@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:koala/core/constants/app_colors.dart';
+
+const _proxyUrl = 'https://koala-proxy.koala-proxy.workers.dev';
 
 enum _Role { user, assistant }
 
@@ -27,7 +28,6 @@ class ConversationScreen extends StatefulWidget {
 }
 
 class _ConversationScreenState extends State<ConversationScreen> {
-  String? _apiKey;
   String? _selectedScenario;
   final List<_ChatMessage> _messages = [];
   bool _isLoading = false;
@@ -37,7 +37,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
   @override
   void initState() {
     super.initState();
-    _loadApiKey();
   }
 
   @override
@@ -47,57 +46,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
     super.dispose();
   }
 
-  Future<void> _loadApiKey() async {
-    final prefs = await SharedPreferences.getInstance();
-    final key = prefs.getString('anthropic_api_key');
-    if (!mounted) return;
-    setState(() => _apiKey = key);
-    if (key == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _showApiKeyDialog());
-    }
-  }
-
-  Future<void> _showApiKeyDialog({bool isChange = false}) async {
-    final controller = TextEditingController(text: isChange ? _apiKey : null);
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: isChange,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Anthropic API Key'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            hintText: 'sk-ant-...',
-            labelText: 'API Key',
-          ),
-          obscureText: true,
-        ),
-        actions: [
-          if (isChange)
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
-          TextButton(
-            onPressed: () async {
-              final key = controller.text.trim();
-              if (key.isEmpty) return;
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setString('anthropic_api_key', key);
-              if (!mounted) return;
-              setState(() => _apiKey = key);
-              if (ctx.mounted) Navigator.pop(ctx);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-  }
-
   Future<void> _sendMessage(String text) async {
-    if (text.trim().isEmpty || _isLoading || _apiKey == null || _selectedScenario == null) {
+    if (text.trim().isEmpty || _isLoading || _selectedScenario == null) {
       return;
     }
     final userMessage = _ChatMessage(role: _Role.user, content: text.trim());
@@ -117,13 +67,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
           .toList();
 
       final response = await http.post(
-        Uri.parse('https://api.anthropic.com/v1/messages'),
-        headers: {
-          'x-api-key': _apiKey!,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json',
-          'anthropic-dangerous-direct-browser-access': 'true',
-        },
+        Uri.parse('https://koala-proxy.koala-proxy.workers.dev'),
+        headers: {'content-type': 'application/json'},
         body: jsonEncode({
           'model': 'claude-haiku-5-5',
           'max_tokens': 1024,
@@ -186,11 +131,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 _messages.clear();
               }),
             ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: 'API Key',
-            onPressed: () => _showApiKeyDialog(isChange: true),
-          ),
         ],
       ),
       body: _selectedScenario == null ? _buildScenarioPicker() : _buildChat(),

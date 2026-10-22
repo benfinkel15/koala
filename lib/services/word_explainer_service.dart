@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:koala/services/usage_tracker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+const _proxyUrl = 'https://koala-proxy.koala-proxy.workers.dev';
 
 class WordExplanation {
   final String word;
@@ -18,18 +19,6 @@ class WordExplanation {
 }
 
 class WordExplainerService {
-  static const _embedded = String.fromEnvironment('ANTHROPIC_KEY', defaultValue: '');
-
-  static Future<String?> getApiKey() async {
-    // Manually-entered key always takes priority so the user can override a bad embedded key
-    final prefs = await SharedPreferences.getInstance();
-    final stored = prefs.getString('anthropic_api_key');
-    if (stored != null && stored.isNotEmpty) return stored;
-    if (_embedded.isNotEmpty) return _embedded;
-    return null;
-  }
-
-  /// Throws a descriptive [Exception] on any failure so callers can surface the real error.
   static Future<WordExplanation> explain(
     String word,
     String sentence, {
@@ -37,11 +26,6 @@ class WordExplainerService {
   }) async {
     if (await UsageTracker.isOverLimit()) {
       throw Exception('Monthly \$1 usage limit reached — resets on the 1st.');
-    }
-
-    final apiKey = await getApiKey();
-    if (apiKey == null || apiKey.isEmpty) {
-      throw Exception('No API key found. Tap the 🔑 icon to add one.');
     }
 
     final clean = word.replaceAll(RegExp(r'[.,!?;:"""„]'), '');
@@ -52,13 +36,8 @@ class WordExplainerService {
     final http.Response response;
     try {
       response = await http.post(
-        Uri.parse('https://api.anthropic.com/v1/messages'),
-        headers: {
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json',
-          'anthropic-dangerous-direct-browser-access': 'true',
-        },
+        Uri.parse(_proxyUrl),
+        headers: {'content-type': 'application/json'},
         body: jsonEncode({
           'model': 'claude-haiku-4-5-20251001',
           'max_tokens': 200,

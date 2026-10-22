@@ -138,12 +138,8 @@ class CurriculumService {
 
   Future<CurriculumData> _generate(String name, String apiKey) async {
     final response = await http.post(
-      Uri.parse('https://api.anthropic.com/v1/messages'),
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
+      Uri.parse('https://koala-proxy.koala-proxy.workers.dev'),
+      headers: {'content-type': 'application/json'},
       body: jsonEncode({
         'model': 'claude-sonnet-4-6',
         'max_tokens': 8192,

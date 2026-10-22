@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/services/audio_service.dart';
 import 'package:koala/services/word_explainer_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 enum _Phase { loading, explanation, drill, result }
 
@@ -75,41 +74,11 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
       );
       if (mounted) setState(() { _explanation = result; _phase = _Phase.explanation; });
     } catch (e) {
-      if (mounted) setState(() { _errorMsg = e.toString().replaceFirst('Exception: ', ''); _phase = _Phase.explanation; });
+      if (mounted) setState(() {
+        _errorMsg = e.toString().replaceFirst('Exception: ', '');
+        _phase = _Phase.explanation;
+      });
     }
-  }
-
-  Future<void> _showKeyDialog() async {
-    final controller = TextEditingController();
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Anthropic API Key'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'sk-ant-...', labelText: 'API Key'),
-          obscureText: true,
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () async {
-              final key = controller.text.trim();
-              if (key.isEmpty) return;
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setString('anthropic_api_key', key);
-              if (ctx.mounted) Navigator.pop(ctx);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    if (!mounted) return;
-    setState(() { _phase = _Phase.loading; _errorMsg = null; });
-    _load();
   }
 
   void _check() {
@@ -179,28 +148,9 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: AppColors.incorrect.withValues(alpha: 0.25)),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(_errorMsg!, style: const TextStyle(fontSize: 13)),
-                if (_errorMsg!.contains('key') || _errorMsg!.contains('401') || _errorMsg!.contains('403')) ...[
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: _showKeyDialog,
-                      icon: const Icon(Icons.key, size: 18),
-                      label: const Text('Update API key'),
-                    ),
-                  ),
-                ],
-              ],
-            ),
+            child: Text(_errorMsg!, style: const TextStyle(fontSize: 13)),
           ),
-        ] else if (_explanation == null) ...[
-          const SizedBox(height: 8),
-          const Text('Could not load explanation.'),
-        ] else ...[
+        ] else if (_explanation != null) ...[
           _InfoRow(
               label: 'Meaning',
               value: _explanation!.translation,
@@ -252,9 +202,7 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
           controller: _answer,
           autofocus: true,
           onSubmitted: (_) => _check(),
-          decoration: const InputDecoration(
-            hintText: 'Type your answer…',
-          ),
+          decoration: const InputDecoration(hintText: 'Type your answer…'),
         ),
         const SizedBox(height: 12),
         SizedBox(

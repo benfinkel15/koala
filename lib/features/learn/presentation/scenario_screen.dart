@@ -6,7 +6,8 @@ import 'package:koala/features/learn/presentation/learn_screen.dart';
 import 'package:koala/services/audio_service.dart';
 import 'package:koala/services/usage_tracker.dart';
 import 'package:koala/widgets/word_drill_sheet.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+const _proxyUrl = 'https://koala-proxy.koala-proxy.workers.dev';
 
 class ScenarioScreen extends StatefulWidget {
   final String scenarioId;
@@ -17,10 +18,7 @@ class ScenarioScreen extends StatefulWidget {
 }
 
 class _ScenarioScreenState extends State<ScenarioScreen> {
-  static const _embedded = String.fromEnvironment('ANTHROPIC_KEY', defaultValue: '');
-
   ScenarioConfig? _scenario;
-  String? _apiKey;
   final List<_Msg> _messages = [];
   bool _loading = false;
   bool _overLimit = false;
@@ -33,7 +31,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     try {
       _scenario = allScenarios.firstWhere((s) => s.id == widget.scenarioId);
     } catch (_) {}
-    _loadKey();
+    _sendOpener();
   }
 
   @override
@@ -43,57 +41,8 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
     super.dispose();
   }
 
-  Future<void> _loadKey() async {
-    // Stored key takes priority so the user can override a bad embedded key
-    final prefs = await SharedPreferences.getInstance();
-    final stored = prefs.getString('anthropic_api_key');
-    final key = (stored != null && stored.isNotEmpty) ? stored : (_embedded.isNotEmpty ? _embedded : null);
-    if (!mounted) return;
-    setState(() => _apiKey = key);
-    if (key == null) {
-      _showKeyDialog();
-    } else {
-      _sendOpener();
-    }
-  }
-
-  void _showKeyDialog({bool isChange = false}) async {
-    final c = TextEditingController(text: isChange ? _apiKey : null);
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: isChange,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Anthropic API Key'),
-        content: TextField(
-          controller: c,
-          obscureText: true,
-          decoration:
-              const InputDecoration(hintText: 'sk-ant-...', labelText: 'API Key'),
-        ),
-        actions: [
-          if (isChange)
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () async {
-              final key = c.text.trim();
-              if (key.isNotEmpty) {
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setString('anthropic_api_key', key);
-                if (!mounted) return;
-                setState(() => _apiKey = key);
-              }
-              if (ctx.mounted) Navigator.pop(ctx);
-              if (_messages.isEmpty) _sendOpener();
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _sendOpener() async {
-    if (_scenario == null || _apiKey == null) return;
+    if (_scenario == null) return;
     if (await UsageTracker.isOverLimit()) {
       if (mounted) setState(() => _overLimit = true);
       return;
@@ -119,7 +68,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
 
   Future<void> _send() async {
     final text = _input.text.trim();
-    if (text.isEmpty || _loading || _apiKey == null) return;
+    if (text.isEmpty || _loading) return;
     if (await UsageTracker.isOverLimit()) {
       if (mounted) setState(() => _overLimit = true);
       return;
@@ -144,24 +93,19 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
   }
 
   Future<String?> _callApi(String userContent) async {
-    if (_scenario == null || _apiKey == null) return null;
+    if (_scenario == null) return null;
     try {
       final history = _messages
           .map((m) => {
                 'role': m.role == _Role.user ? 'user' : 'assistant',
-                'content': m.content
+                'content': m.content,
               })
           .toList();
       history.add({'role': 'user', 'content': userContent});
 
       final res = await http.post(
-        Uri.parse('https://api.anthropic.com/v1/messages'),
-        headers: {
-          'x-api-key': _apiKey!,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json',
-          'anthropic-dangerous-direct-browser-access': 'true',
-        },
+        Uri.parse(_proxyUrl),
+        headers: {'content-type': 'application/json'},
         body: jsonEncode({
           'model': 'claude-haiku-4-5-20251001',
           'max_tokens': 300,
@@ -183,17 +127,17 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
       if (mounted) {
         final body = res.body.length > 200 ? '${res.body.substring(0, 200)}…' : res.body;
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('API error ${res.statusCode}: $body'),
+          content: Text('Error ${res.statusCode}: $body'),
           backgroundColor: Colors.red.shade800,
-          duration: const Duration(seconds: 10),
+          duration: const Duration(seconds: 8),
         ));
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Connection error — check your API key (🔑): $e'),
+          content: Text('Network error: $e'),
           backgroundColor: Colors.red.shade800,
-          duration: const Duration(seconds: 10),
+          duration: const Duration(seconds: 8),
         ));
       }
     }
@@ -229,37 +173,9 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
                 style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.key_outlined, color: AppColors.textSecondary),
-            onPressed: () => _showKeyDialog(isChange: true),
-          ),
-        ],
       ),
       body: Column(
         children: [
-          if (_apiKey == null)
-            GestureDetector(
-              onTap: () => _showKeyDialog(isChange: true),
-              child: Container(
-                width: double.infinity,
-                color: AppColors.accent.withValues(alpha: 0.15),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Row(
-                  children: [
-                    const Icon(Icons.key, size: 16, color: AppColors.accent),
-                    const SizedBox(width: 8),
-                    const Expanded(
-                      child: Text(
-                        'Tap here to enter your Anthropic API key and start chatting.',
-                        style: TextStyle(fontSize: 13, color: AppColors.accent),
-                      ),
-                    ),
-                    const Icon(Icons.chevron_right, color: AppColors.accent, size: 18),
-                  ],
-                ),
-              ),
-            ),
           if (_overLimit)
             Container(
               width: double.infinity,
@@ -272,8 +188,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
                   Expanded(
                     child: Text(
                       'Monthly \$${UsageTracker.limitDollars.toStringAsFixed(0)} AI limit reached — resets on the 1st.',
-                      style: const TextStyle(
-                          color: AppColors.incorrect, fontSize: 13),
+                      style: const TextStyle(color: AppColors.incorrect, fontSize: 13),
                     ),
                   ),
                 ],
@@ -303,7 +218,7 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
   }
 }
 
-// ─── Message Bubble ────────────────────────────────────────────────────────
+// ─── Message Bubble ───────────────────────────────────────────────────────────
 
 class _MessageBubble extends StatelessWidget {
   final _Msg message;
@@ -344,8 +259,7 @@ class _MessageBubble extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.brown.withValues(alpha: 0.08)),
           boxShadow: [
-            BoxShadow(
-                color: Colors.brown.withValues(alpha: 0.05), blurRadius: 4)
+            BoxShadow(color: Colors.brown.withValues(alpha: 0.05), blurRadius: 4),
           ],
         ),
         child: Column(
@@ -355,19 +269,16 @@ class _MessageBubble extends StatelessWidget {
                 text: targetLangPart, sentence: targetLangPart, language: language),
             if (englishPart != null && englishPart.isNotEmpty) ...[
               const SizedBox(height: 6),
-              Text(
-                englishPart,
-                style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 13,
-                    fontStyle: FontStyle.italic),
-              ),
+              Text(englishPart,
+                  style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                      fontStyle: FontStyle.italic)),
             ],
             const SizedBox(height: 4),
             GestureDetector(
               onTap: () => AudioService().speak(targetLangPart, langCode: language),
-              child: Icon(Icons.volume_up,
-                  size: 16, color: AppColors.textSecondary),
+              child: Icon(Icons.volume_up, size: 16, color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -376,7 +287,7 @@ class _MessageBubble extends StatelessWidget {
   }
 }
 
-// ─── Tappable Text ─────────────────────────────────────────────────────────
+// ─── Tappable Text ────────────────────────────────────────────────────────────
 
 class _TappableText extends StatelessWidget {
   final String text;
@@ -394,10 +305,7 @@ class _TappableText extends StatelessWidget {
       children: words
           .map((word) => GestureDetector(
                 onTap: () => _showExplanation(context, word, sentence),
-                child: Text(
-                  '$word ',
-                  style: const TextStyle(fontSize: 15, height: 1.5),
-                ),
+                child: Text('$word ', style: const TextStyle(fontSize: 15, height: 1.5)),
               ))
           .toList(),
     );
@@ -410,7 +318,7 @@ class _TappableText extends StatelessWidget {
   }
 }
 
-// ─── Typing Indicator ──────────────────────────────────────────────────────
+// ─── Typing Indicator ─────────────────────────────────────────────────────────
 
 class _TypingIndicator extends StatelessWidget {
   const _TypingIndicator();
@@ -437,7 +345,7 @@ class _TypingIndicator extends StatelessWidget {
   }
 }
 
-// ─── Input Bar ─────────────────────────────────────────────────────────────
+// ─── Input Bar ────────────────────────────────────────────────────────────────
 
 class _InputBar extends StatelessWidget {
   final TextEditingController controller;
@@ -478,13 +386,11 @@ class _InputBar extends StatelessWidget {
                 hintStyle: TextStyle(color: AppColors.textSecondary),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
-                  borderSide:
-                      BorderSide(color: Colors.brown.withValues(alpha: 0.2)),
+                  borderSide: BorderSide(color: Colors.brown.withValues(alpha: 0.2)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
-                  borderSide:
-                      BorderSide(color: Colors.brown.withValues(alpha: 0.2)),
+                  borderSide: BorderSide(color: Colors.brown.withValues(alpha: 0.2)),
                 ),
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -503,7 +409,7 @@ class _InputBar extends StatelessWidget {
   }
 }
 
-// ─── Internal types ────────────────────────────────────────────────────────
+// ─── Internal types ───────────────────────────────────────────────────────────
 
 enum _Role { user, assistant }
 
