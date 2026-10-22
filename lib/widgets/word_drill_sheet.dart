@@ -44,7 +44,7 @@ class WordDrillSheet extends StatefulWidget {
 class _WordDrillSheetState extends State<WordDrillSheet> {
   _Phase _phase = _Phase.loading;
   WordExplanation? _explanation;
-  bool _noKey = false;
+  String? _errorMsg;
 
   final _answer = TextEditingController();
   bool? _correct;
@@ -67,17 +67,16 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
   }
 
   Future<void> _load() async {
-    final key = await WordExplainerService.getApiKey();
-    if (key == null || key.isEmpty) {
-      if (mounted) setState(() { _phase = _Phase.explanation; _noKey = true; });
-      return;
+    try {
+      final result = await WordExplainerService.explain(
+        widget.word,
+        widget.sentence,
+        langCode: widget.langCode,
+      );
+      if (mounted) setState(() { _explanation = result; _phase = _Phase.explanation; });
+    } catch (e) {
+      if (mounted) setState(() { _errorMsg = e.toString().replaceFirst('Exception: ', ''); _phase = _Phase.explanation; });
     }
-    final result = await WordExplainerService.explain(
-      widget.word,
-      widget.sentence,
-      langCode: widget.langCode,
-    );
-    if (mounted) setState(() { _explanation = result; _phase = _Phase.explanation; });
   }
 
   Future<void> _showKeyDialog() async {
@@ -109,7 +108,7 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
     );
     controller.dispose();
     if (!mounted) return;
-    setState(() { _phase = _Phase.loading; _noKey = false; });
+    setState(() { _phase = _Phase.loading; _errorMsg = null; });
     _load();
   }
 
@@ -171,19 +170,31 @@ class _WordDrillSheetState extends State<WordDrillSheet> {
             ),
           ],
         ),
-        if (_noKey) ...[
+        if (_errorMsg != null) ...[
           const SizedBox(height: 12),
-          Text(
-            'An Anthropic API key is needed for word explanations.',
-            style: const TextStyle(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: _showKeyDialog,
-              icon: const Icon(Icons.key, size: 18),
-              label: const Text('Set API key'),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.incorrect.withValues(alpha: 0.09),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.incorrect.withValues(alpha: 0.25)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(_errorMsg!, style: const TextStyle(fontSize: 13)),
+                if (_errorMsg!.contains('key') || _errorMsg!.contains('401') || _errorMsg!.contains('403')) ...[
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _showKeyDialog,
+                      icon: const Icon(Icons.key, size: 18),
+                      label: const Text('Update API key'),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
         ] else if (_explanation == null) ...[
