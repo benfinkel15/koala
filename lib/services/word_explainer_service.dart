@@ -89,7 +89,9 @@ class WordExplainerService {
       );
     }
     final text = (data['content'] as List).first['text'] as String;
-    final json = jsonDecode(text) as Map<String, dynamic>;
+    final match = RegExp(r'\{[\s\S]*\}').firstMatch(text);
+    if (match == null) throw Exception('Unexpected response format: $text');
+    final json = jsonDecode(match.group(0)!) as Map<String, dynamic>;
     return WordExplanation(
       word: clean,
       translation: json['translation'] as String,
