@@ -44,14 +44,10 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
   }
 
   Future<void> _loadKey() async {
-    if (_embedded.isNotEmpty) {
-      if (!mounted) return;
-      setState(() => _apiKey = _embedded);
-      _sendOpener();
-      return;
-    }
+    // Stored key takes priority so the user can override a bad embedded key
     final prefs = await SharedPreferences.getInstance();
-    final key = prefs.getString('anthropic_api_key');
+    final stored = prefs.getString('anthropic_api_key');
+    final key = (stored != null && stored.isNotEmpty) ? stored : (_embedded.isNotEmpty ? _embedded : null);
     if (!mounted) return;
     setState(() => _apiKey = key);
     if (key == null) {

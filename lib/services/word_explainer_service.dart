@@ -21,9 +21,12 @@ class WordExplainerService {
   static const _embedded = String.fromEnvironment('ANTHROPIC_KEY', defaultValue: '');
 
   static Future<String?> getApiKey() async {
-    if (_embedded.isNotEmpty) return _embedded;
+    // Manually-entered key always takes priority so the user can override a bad embedded key
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('anthropic_api_key');
+    final stored = prefs.getString('anthropic_api_key');
+    if (stored != null && stored.isNotEmpty) return stored;
+    if (_embedded.isNotEmpty) return _embedded;
+    return null;
   }
 
   /// Throws a descriptive [Exception] on any failure so callers can surface the real error.
