@@ -106,6 +106,8 @@ class CurriculumService {
       return _current!;
     }
 
+
+
     if (code == 'nl') {
       _currentCode = 'nl';
       _current = CurriculumData(units: _dutchUnits, exercises: dutchLessonExercises);
@@ -145,17 +147,19 @@ class CurriculumService {
   }
 
   Future<CurriculumData> _generate(String name, String apiKey) async {
-    final response = await http.post(
-      Uri.parse('https://koala-proxy.koala-proxy.workers.dev'),
-      headers: {'content-type': 'application/json'},
-      body: jsonEncode({
-        'model': 'claude-sonnet-4-6',
-        'max_tokens': 8192,
-        'messages': [
-          {'role': 'user', 'content': _buildPrompt(name)},
-        ],
-      }),
-    );
+    final response = await http
+        .post(
+          Uri.parse('https://koala-proxy.koala-proxy.workers.dev'),
+          headers: {'content-type': 'application/json'},
+          body: jsonEncode({
+            'model': 'claude-sonnet-4-6',
+            'max_tokens': 8192,
+            'messages': [
+              {'role': 'user', 'content': _buildPrompt(name)},
+            ],
+          }),
+        )
+        .timeout(const Duration(seconds: 60));
 
     if (response.statusCode != 200) {
       throw Exception('API error: ${response.statusCode}');

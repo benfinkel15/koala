@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await CurriculumService().loadLanguage('de', 'German', '');
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('selected_language', 'de');
-      if (mounted) setState(() {});
+      if (mounted) setState(() => _isGenerating = false);
       return;
     }
 
