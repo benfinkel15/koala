@@ -5,7 +5,6 @@ class UsageTracker {
   static const _keyOutput = 'usage_output_tokens';
   static const _keyMonth = 'usage_month';
 
-  // Claude Haiku 4.5 pricing
   static const _inputPer1M = 0.80;
   static const _outputPer1M = 4.00;
   static const limitDollars = 1.0;
