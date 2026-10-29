@@ -17,6 +17,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   static const _languages = [
     ('German', 'de', '🇩🇪'),
+    ('Dutch', 'nl', '🇳🇱'),
+    ('Danish', 'da', '🇩🇰'),
+    ('Indonesian', 'id', '🇮🇩'),
     ('Spanish', 'es', '🇪🇸'),
     ('French', 'fr', '🇫🇷'),
     ('Italian', 'it', '🇮🇹'),
