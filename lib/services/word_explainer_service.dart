@@ -31,7 +31,7 @@ class WordExplainerService {
     final clean = word.replaceAll(RegExp(r'[.,!?;:"""„]'), '');
     if (clean.isEmpty) throw Exception('Word is empty after cleaning punctuation.');
 
-    final langName = langCode == 'nl' ? 'Dutch' : langCode == 'da' ? 'Danish' : 'German';
+    final langName = langCode == 'nl' ? 'Dutch' : langCode == 'da' ? 'Danish' : langCode == 'id' ? 'Indonesian' : 'German';
 
     final http.Response response;
     try {

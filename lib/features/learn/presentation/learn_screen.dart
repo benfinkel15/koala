@@ -12,7 +12,7 @@ class ScenarioConfig {
   final String difficulty;
   final IconData icon;
   final String systemPrompt;
-  final String language; // 'de', 'nl', or 'da'
+  final String language; // 'de', 'nl', 'da', or 'id'
 
   const ScenarioConfig({
     required this.id,
@@ -115,6 +115,96 @@ const allScenarios = [
     icon: Icons.apartment,
     systemPrompt:
         'You are a German landlord showing an apartment to a potential tenant. Speak only in German. After every response add a blank line then an English translation in italics (prefix with "🇬🇧 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tipp:". Keep responses short — 1 to 3 sentences.',
+  ),
+
+  // ─── Indonesian ──────────────────────────────────────────────────────────
+  ScenarioConfig(
+    id: 'id_cafe',
+    language: 'id',
+    title: 'Di Warung Kopi',
+    description: 'Pesan kopi dan makanan ringan di warung lokal',
+    character: 'Indonesian café owner',
+    difficulty: 'Beginner',
+    icon: Icons.coffee,
+    systemPrompt:
+        'You are a friendly owner of a cozy Indonesian warung kopi called "Warung Bu Sari". Speak only in Indonesian (Bahasa Indonesia). After every response add a blank line then an English translation in italics (prefix with "🇮🇩 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tips:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'id_meeting',
+    language: 'id',
+    title: 'Berkenalan',
+    description: 'Perkenalkan dirimu dan kenal orang baru',
+    character: 'Indonesian acquaintance',
+    difficulty: 'Beginner',
+    icon: Icons.waving_hand,
+    systemPrompt:
+        'You are a friendly Indonesian person meeting someone new at a community event. Speak only in Indonesian (Bahasa Indonesia). After every response add a blank line then an English translation in italics (prefix with "🇮🇩 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tips:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'id_market',
+    language: 'id',
+    title: 'Di Pasar',
+    description: 'Beli buah dan sayuran segar di pasar tradisional',
+    character: 'Market vendor',
+    difficulty: 'Beginner',
+    icon: Icons.storefront,
+    systemPrompt:
+        'You are a cheerful vendor at a traditional Indonesian pasar (market) selling fresh fruit and vegetables. Speak only in Indonesian (Bahasa Indonesia). After every response add a blank line then an English translation in italics (prefix with "🇮🇩 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tips:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'id_train',
+    language: 'id',
+    title: 'Di Stasiun',
+    description: 'Beli tiket dan temukan peron yang benar',
+    character: 'KAI station staff',
+    difficulty: 'Intermediate',
+    icon: Icons.train,
+    systemPrompt:
+        'You are a helpful ticket agent at an Indonesian train station (KAI — Kereta Api Indonesia). Speak only in Indonesian (Bahasa Indonesia). After every response add a blank line then an English translation in italics (prefix with "🇮🇩 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tips:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'id_plans',
+    language: 'id',
+    title: 'Buat Rencana',
+    description: 'Atur janji dengan teman untuk akhir pekan',
+    character: 'Indonesian friend',
+    difficulty: 'Intermediate',
+    icon: Icons.calendar_today,
+    systemPrompt:
+        'You are a good Indonesian friend making plans for the weekend. Speak only in Indonesian (Bahasa Indonesia). After every response add a blank line then an English translation in italics (prefix with "🇮🇩 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tips:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'id_doctor',
+    language: 'id',
+    title: 'Ke Dokter',
+    description: 'Ceritakan gejalamu ke dokter Indonesia',
+    character: 'Dokter umum',
+    difficulty: 'Intermediate',
+    icon: Icons.local_hospital,
+    systemPrompt:
+        'You are a friendly dokter umum (GP) at an Indonesian clinic (puskesmas). Speak only in Indonesian (Bahasa Indonesia). After every response add a blank line then an English translation in italics (prefix with "🇮🇩 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tips:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'id_interview',
+    language: 'id',
+    title: 'Wawancara Kerja',
+    description: 'Jawab pertanyaan tentang dirimu dan pengalamanmu',
+    character: 'HR manager',
+    difficulty: 'Advanced',
+    icon: Icons.work,
+    systemPrompt:
+        'You are a professional HR manager at an Indonesian company conducting a job interview. Speak only in Indonesian (Bahasa Indonesia). After every response add a blank line then an English translation in italics (prefix with "🇮🇩 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tips:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'id_apartment',
+    language: 'id',
+    title: 'Sewa Apartemen',
+    description: 'Lihat apartemen dan diskusikan detailnya',
+    character: 'Pemilik kost',
+    difficulty: 'Advanced',
+    icon: Icons.apartment,
+    systemPrompt:
+        'You are an Indonesian landlord showing a kost (rental room) to a potential tenant. Speak only in Indonesian (Bahasa Indonesia). After every response add a blank line then an English translation in italics (prefix with "🇮🇩 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tips:". Keep responses short — 1 to 3 sentences.',
   ),
 
   // ─── Danish ──────────────────────────────────────────────────────────────
@@ -382,14 +472,19 @@ class _LanguagePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _LangChip(flag: '🇩🇪', label: 'German', code: 'de', selected: selected, onTap: onSelect),
-        const SizedBox(width: 8),
-        _LangChip(flag: '🇳🇱', label: 'Dutch', code: 'nl', selected: selected, onTap: onSelect),
-        const SizedBox(width: 8),
-        _LangChip(flag: '🇩🇰', label: 'Danish', code: 'da', selected: selected, onTap: onSelect),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          _LangChip(flag: '🇩🇪', label: 'German', code: 'de', selected: selected, onTap: onSelect),
+          const SizedBox(width: 8),
+          _LangChip(flag: '🇳🇱', label: 'Dutch', code: 'nl', selected: selected, onTap: onSelect),
+          const SizedBox(width: 8),
+          _LangChip(flag: '🇩🇰', label: 'Danish', code: 'da', selected: selected, onTap: onSelect),
+          const SizedBox(width: 8),
+          _LangChip(flag: '🇮🇩', label: 'Indonesian', code: 'id', selected: selected, onTap: onSelect),
+        ],
+      ),
     );
   }
 }

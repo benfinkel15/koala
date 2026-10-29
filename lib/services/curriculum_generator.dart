@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:koala/content/danish/curriculum.dart';
 import 'package:koala/content/dutch/curriculum.dart';
 import 'package:koala/content/german/curriculum.dart';
+import 'package:koala/content/indonesian/curriculum.dart';
 
 class LanguageInfo {
   final String code;
@@ -21,6 +22,7 @@ const supportedLanguages = [
   LanguageInfo(code: 'de', name: 'German', nativeName: 'Deutsch'),
   LanguageInfo(code: 'nl', name: 'Dutch', nativeName: 'Nederlands'),
   LanguageInfo(code: 'da', name: 'Danish', nativeName: 'Dansk'),
+  LanguageInfo(code: 'id', name: 'Indonesian', nativeName: 'Bahasa Indonesia'),
   LanguageInfo(code: 'es', name: 'Spanish', nativeName: 'Español'),
   LanguageInfo(code: 'fr', name: 'French', nativeName: 'Français'),
   LanguageInfo(code: 'it', name: 'Italian', nativeName: 'Italiano'),
@@ -113,6 +115,12 @@ class CurriculumService {
     if (code == 'da') {
       _currentCode = 'da';
       _current = CurriculumData(units: _danishUnits, exercises: danishLessonExercises);
+      return _current!;
+    }
+
+    if (code == 'id') {
+      _currentCode = 'id';
+      _current = CurriculumData(units: _indonesianUnits, exercises: indonesianLessonExercises);
       return _current!;
     }
 
@@ -338,6 +346,69 @@ class CurriculumService {
         CurriculumLesson(id: 'da_u5_l3', title: 'Particle Verbs'),
         CurriculumLesson(id: 'da_u5_l4', title: 'Days & Months'),
         CurriculumLesson(id: 'da_u5_l5', title: 'Making Plans — Full Conversation'),
+      ],
+    ),
+  ];
+
+  static const _indonesianUnits = [
+    CurriculumUnit(
+      id: 'id_u1',
+      title: 'Unit 1 — Halo & Perkenalan',
+      description: 'Say hello, introduce yourself, say where you\'re from',
+      lessons: [
+        CurriculumLesson(id: 'id_u1_l1', title: 'Halo dan Sampai Jumpa'),
+        CurriculumLesson(id: 'id_u1_l2', title: 'Nama Saya…'),
+        CurriculumLesson(id: 'id_u1_l3', title: 'Pronouns: saya, kamu, dia'),
+        CurriculumLesson(id: 'id_u1_l4', title: 'Dari Mana Kamu?'),
+        CurriculumLesson(id: 'id_u1_l5', title: 'Percakapan Pertama'),
+      ],
+    ),
+    CurriculumUnit(
+      id: 'id_u2',
+      title: 'Unit 2 — Keluarga & Hobi',
+      description: 'Talk about family, hobbies, and possession',
+      lessons: [
+        CurriculumLesson(id: 'id_u2_l1', title: 'Punya dan Ada'),
+        CurriculumLesson(id: 'id_u2_l2', title: 'Anggota Keluarga'),
+        CurriculumLesson(id: 'id_u2_l3', title: 'Awalan me-'),
+        CurriculumLesson(id: 'id_u2_l4', title: 'Hobi'),
+        CurriculumLesson(id: 'id_u2_l5', title: 'Perkenalan Lengkap'),
+      ],
+    ),
+    CurriculumUnit(
+      id: 'id_u3',
+      title: 'Unit 3 — Makanan & Warung',
+      description: 'Order food, express likes, use modal verbs',
+      lessons: [
+        CurriculumLesson(id: 'id_u3_l1', title: 'Kosakata Makanan & Minuman'),
+        CurriculumLesson(id: 'id_u3_l2', title: 'Suka — Mengungkapkan Preferensi'),
+        CurriculumLesson(id: 'id_u3_l3', title: 'Pesan di Warung'),
+        CurriculumLesson(id: 'id_u3_l4', title: 'mau, bisa, harus, boleh'),
+        CurriculumLesson(id: 'id_u3_l5', title: 'Di Warung — Percakapan Penuh'),
+      ],
+    ),
+    CurriculumUnit(
+      id: 'id_u4',
+      title: 'Unit 4 — Arah & Transportasi',
+      description: 'Count, ask for directions, use transport',
+      lessons: [
+        CurriculumLesson(id: 'id_u4_l1', title: 'Angka 1–20'),
+        CurriculumLesson(id: 'id_u4_l2', title: 'Kiri, Kanan, Lurus'),
+        CurriculumLesson(id: 'id_u4_l3', title: 'Transportasi — Bis, Kereta, Ojek'),
+        CurriculumLesson(id: 'id_u4_l4', title: 'Kata Depan Tempat'),
+        CurriculumLesson(id: 'id_u4_l5', title: 'Keliling Kota — Percakapan Penuh'),
+      ],
+    ),
+    CurriculumUnit(
+      id: 'id_u5',
+      title: 'Unit 5 — Kehidupan Sehari-hari & Waktu',
+      description: 'Tell the time, talk about routines, make plans',
+      lessons: [
+        CurriculumLesson(id: 'id_u5_l1', title: 'Jam Berapa Sekarang?'),
+        CurriculumLesson(id: 'id_u5_l2', title: 'Rutinitas Harian'),
+        CurriculumLesson(id: 'id_u5_l3', title: 'Awalan ber-'),
+        CurriculumLesson(id: 'id_u5_l4', title: 'Hari & Bulan'),
+        CurriculumLesson(id: 'id_u5_l5', title: 'Membuat Rencana — Percakapan Penuh'),
       ],
     ),
   ];

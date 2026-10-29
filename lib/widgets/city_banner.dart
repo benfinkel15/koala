@@ -52,6 +52,7 @@ class CityBanner extends StatelessWidget {
   static String _label(String lang) {
     if (lang == 'nl') return 'AMSTERDAM';
     if (lang == 'da') return 'COPENHAGEN';
+    if (lang == 'id') return 'JAKARTA';
     return 'BERLIN';
   }
 
@@ -70,6 +71,13 @@ class CityBanner extends StatelessWidget {
         cityColor: Color(0xFF1A2A3A), city: _CityStyle.copenhagen,
       );
     }
+    if (lang == 'id') {
+      return const _BannerConfig(
+        skyTop: Color(0xFF1B4F72), skyBottom: Color(0xFFE8A045),
+        waveColor: Color(0xFF1A8FA0), waveColor2: Color(0xFF38B8CC),
+        cityColor: Color(0xFF0D1F2D), city: _CityStyle.jakarta,
+      );
+    }
     return const _BannerConfig(
       skyTop: Color(0xFF1A3050), skyBottom: Color(0xFFC4714A),
       waveColor: Color(0xFF2B7A8A), waveColor2: Color(0xFF4A9DB5),
@@ -80,7 +88,7 @@ class CityBanner extends StatelessWidget {
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-enum _CityStyle { berlin, amsterdam, copenhagen }
+enum _CityStyle { berlin, amsterdam, copenhagen, jakarta }
 
 class _BannerConfig {
   final Color skyTop, skyBottom, waveColor, waveColor2, cityColor;
@@ -126,6 +134,8 @@ class _SkyPainter extends CustomPainter {
         _paintAmsterdam(canvas, w, h, gnd);
       case _CityStyle.copenhagen:
         _paintCopenhagen(canvas, w, h, gnd);
+      case _CityStyle.jakarta:
+        _paintJakarta(canvas, w, h, gnd);
     }
 
     // Waves (drawn on top of city)
@@ -311,6 +321,70 @@ class _SkyPainter extends CustomPainter {
     canvas.drawRect(Rect.fromLTWH(sx - w * 0.022, gnd - h * 0.34, w * 0.044, h * 0.08), dp);
     canvas.drawRect(Rect.fromLTWH(sx - w * 0.013, gnd - h * 0.39, w * 0.026, h * 0.05), dp);
     _tri(canvas, dp, sx - w * 0.013, gnd - h * 0.39, sx, gnd - h * 0.66, sx + w * 0.013, gnd - h * 0.39);
+  }
+
+  // ─── Jakarta: Monas obelisk + Masjid dome + modern skyscrapers ───────────
+  void _paintJakarta(Canvas canvas, double w, double h, double gnd) {
+    final dp = Paint()..color = cfg.cityColor;
+
+    void b(double x, double bw, double bh) =>
+        canvas.drawRect(Rect.fromLTWH(x, gnd - bh, bw, bh), dp);
+
+    // Left cluster — glass towers
+    b(w * 0.00, w * 0.055, h * 0.20);
+    b(w * 0.05, w * 0.045, h * 0.14);
+    b(w * 0.09, w * 0.055, h * 0.26);
+    b(w * 0.14, w * 0.040, h * 0.18);
+
+    // Masjid Istiqlal — large dome + body
+    final mx = w * 0.25;
+    final mBody = h * 0.22;
+    canvas.drawRect(Rect.fromLTWH(mx - w * 0.07, gnd - mBody, w * 0.14, mBody), dp);
+    // Main dome
+    canvas.drawOval(
+      Rect.fromCenter(center: Offset(mx, gnd - mBody), width: w * 0.12, height: h * 0.14),
+      dp,
+    );
+    // Small side minarets
+    b(mx - w * 0.08, w * 0.016, h * 0.28);
+    b(mx + w * 0.064, w * 0.016, h * 0.28);
+    // Crescent tips
+    final cp = Paint()..color = const Color(0xFFF0C040);
+    canvas.drawOval(Rect.fromCenter(center: Offset(mx - w * 0.072, gnd - h * 0.28 - h * 0.02), width: w * 0.016, height: h * 0.025), cp);
+    canvas.drawOval(Rect.fromCenter(center: Offset(mx + w * 0.072, gnd - h * 0.28 - h * 0.02), width: w * 0.016, height: h * 0.025), cp);
+
+    // Mid towers
+    b(w * 0.40, w * 0.050, h * 0.22);
+    b(w * 0.44, w * 0.050, h * 0.30);
+    b(w * 0.49, w * 0.040, h * 0.16);
+
+    // Monas — Indonesia's iconic obelisk
+    final ox = w * 0.60;
+    // Base pedestal
+    canvas.drawRect(Rect.fromLTWH(ox - w * 0.040, gnd - h * 0.06, w * 0.080, h * 0.06), dp);
+    // Tapering column
+    final colPath = Path()
+      ..moveTo(ox - w * 0.028, gnd - h * 0.06)
+      ..lineTo(ox + w * 0.028, gnd - h * 0.06)
+      ..lineTo(ox + w * 0.010, gnd - h * 0.52)
+      ..lineTo(ox - w * 0.010, gnd - h * 0.52)
+      ..close();
+    canvas.drawPath(colPath, dp);
+    // Gold flame at top
+    final fp = Paint()..color = const Color(0xFFE8A020);
+    canvas.drawOval(Rect.fromCenter(center: Offset(ox, gnd - h * 0.57), width: w * 0.030, height: h * 0.06), fp);
+    _tri(canvas, fp, ox - w * 0.012, gnd - h * 0.57, ox, gnd - h * 0.66, ox + w * 0.012, gnd - h * 0.57);
+
+    // Right towers
+    b(w * 0.70, w * 0.055, h * 0.24);
+    b(w * 0.75, w * 0.048, h * 0.18);
+    b(w * 0.79, w * 0.055, h * 0.28);
+    b(w * 0.84, w * 0.045, h * 0.20);
+    b(w * 0.88, w * 0.055, h * 0.16);
+    b(w * 0.93, w * 0.050, h * 0.22);
+
+    // Ground fill
+    canvas.drawRect(Rect.fromLTWH(0, gnd, w, h - gnd), dp);
   }
 
   // ─── Helpers ───────────────────────────────────────────────────────────────

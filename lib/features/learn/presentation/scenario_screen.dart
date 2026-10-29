@@ -52,7 +52,9 @@ class _ScenarioScreenState extends State<ScenarioScreen> {
         ? 'Begin het gesprek met een korte, natuurlijke openingszin die past bij de situatie.'
         : _scenario!.language == 'da'
             ? 'Start samtalen med en kort, naturlig åbningssætning, der passer til situationen.'
-            : 'Bitte starte das Gespräch mit einer kurzen, natürlichen Eröffnung passend zur Situation.';
+            : _scenario!.language == 'id'
+                ? 'Mulailah percakapan dengan kalimat pembuka singkat yang alami sesuai situasi.'
+                : 'Bitte starte das Gespräch mit einer kurzen, natürlichen Eröffnung passend zur Situation.';
     final reply = await _callApi(opener);
     if (!mounted) return;
     setState(() {
@@ -366,7 +368,9 @@ class _InputBar extends StatelessWidget {
         ? 'Schrijf in het Nederlands…'
         : language == 'da'
             ? 'Skriv på dansk…'
-            : 'Schreib auf Deutsch…';
+            : language == 'id'
+                ? 'Tulis dalam Bahasa Indonesia…'
+                : 'Schreib auf Deutsch…';
     return Container(
       color: AppColors.surface,
       padding: EdgeInsets.only(

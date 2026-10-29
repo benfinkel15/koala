@@ -3,6 +3,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:koala/content/danish/passages.dart';
 import 'package:koala/content/dutch/passages.dart';
 import 'package:koala/content/german/passages.dart';
+import 'package:koala/content/indonesian/passages.dart';
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/widgets/word_drill_sheet.dart';
 
@@ -20,14 +21,14 @@ class _PassageScreenState extends State<PassageScreen> {
   bool _playing = false;
   int _currentSentence = -1;
 
-  String get _ttsLocale => _passage?.language == 'nl' ? 'nl-NL' : _passage?.language == 'da' ? 'da-DK' : 'de-DE';
+  String get _ttsLocale => _passage?.language == 'nl' ? 'nl-NL' : _passage?.language == 'da' ? 'da-DK' : _passage?.language == 'id' ? 'id-ID' : 'de-DE';
   String get _langCode => _passage?.language ?? 'de';
 
   @override
   void initState() {
     super.initState();
     try {
-      _passage = [...germanPassages, ...dutchPassages, ...danishPassages]
+      _passage = [...germanPassages, ...dutchPassages, ...danishPassages, ...indonesianPassages]
           .firstWhere((p) => p.id == widget.passageId);
     } catch (_) {}
     _initTts();

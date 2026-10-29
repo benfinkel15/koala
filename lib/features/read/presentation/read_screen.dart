@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:koala/content/danish/passages.dart';
 import 'package:koala/content/dutch/passages.dart';
 import 'package:koala/content/german/passages.dart';
+import 'package:koala/content/indonesian/passages.dart';
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,7 +43,7 @@ class _ReadScreenState extends State<ReadScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final passages = _lang == 'nl' ? dutchPassages : _lang == 'da' ? danishPassages : germanPassages;
+    final passages = _lang == 'nl' ? dutchPassages : _lang == 'da' ? danishPassages : _lang == 'id' ? indonesianPassages : germanPassages;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -52,14 +53,19 @@ class _ReadScreenState extends State<ReadScreen> {
           preferredSize: const Size.fromHeight(56),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            child: Row(
-              children: [
-                _LangChip(flag: '🇩🇪', label: 'German', code: 'de', selected: _lang, onTap: _setLanguage),
-                const SizedBox(width: 8),
-                _LangChip(flag: '🇳🇱', label: 'Dutch', code: 'nl', selected: _lang, onTap: _setLanguage),
-                const SizedBox(width: 8),
-                _LangChip(flag: '🇩🇰', label: 'Danish', code: 'da', selected: _lang, onTap: _setLanguage),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _LangChip(flag: '🇩🇪', label: 'German', code: 'de', selected: _lang, onTap: _setLanguage),
+                  const SizedBox(width: 8),
+                  _LangChip(flag: '🇳🇱', label: 'Dutch', code: 'nl', selected: _lang, onTap: _setLanguage),
+                  const SizedBox(width: 8),
+                  _LangChip(flag: '🇩🇰', label: 'Danish', code: 'da', selected: _lang, onTap: _setLanguage),
+                  const SizedBox(width: 8),
+                  _LangChip(flag: '🇮🇩', label: 'Indonesian', code: 'id', selected: _lang, onTap: _setLanguage),
+                ],
+              ),
             ),
           ),
         ),
