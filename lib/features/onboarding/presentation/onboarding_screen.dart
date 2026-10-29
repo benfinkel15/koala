@@ -247,46 +247,50 @@ class _LanguageStep extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 32),
-          ...languages.map((lang) {
-            final (name, code, flag) = lang;
-            final selected = selectedCode == code;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: InkWell(
-                onTap: () => onSelect(code),
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: selected ? AppColors.primary.withOpacity(0.1) : AppColors.surface,
-                    border: Border.all(
-                      color: selected ? AppColors.primary : Colors.grey.shade300,
-                      width: selected ? 2 : 1,
-                    ),
+          Expanded(
+            child: ListView(
+              children: languages.map((lang) {
+                final (name, code, flag) = lang;
+                final selected = selectedCode == code;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: InkWell(
+                    onTap: () => onSelect(code),
                     borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(flag, style: const TextStyle(fontSize: 28)),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Text(
-                          name,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: selected ? AppColors.primary : AppColors.textPrimary,
-                          ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: selected ? AppColors.primary.withOpacity(0.1) : AppColors.surface,
+                        border: Border.all(
+                          color: selected ? AppColors.primary : Colors.grey.shade300,
+                          width: selected ? 2 : 1,
                         ),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      if (selected) const Icon(Icons.check_circle, color: AppColors.primary),
-                    ],
+                      child: Row(
+                        children: [
+                          Text(flag, style: const TextStyle(fontSize: 28)),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Text(
+                              name,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: selected ? AppColors.primary : AppColors.textPrimary,
+                              ),
+                            ),
+                          ),
+                          if (selected) const Icon(Icons.check_circle, color: AppColors.primary),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            );
-          }),
-          const Spacer(),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
