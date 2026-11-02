@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+import 'package:string_similarity/string_similarity.dart';
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/content/german/curriculum.dart';
 import 'package:koala/services/audio_service.dart';
 import 'package:koala/services/curriculum_generator.dart';
 import 'package:koala/services/progress_service.dart';
 import 'package:koala/services/streak_service.dart';
+
+part 'exercise_widgets.dart';
 
 class LessonScreen extends StatefulWidget {
   final String lessonId;
@@ -50,7 +54,6 @@ class _LessonScreenState extends State<LessonScreen> {
         _xp += 10;
       } else {
         _hearts = (_hearts - 1).clamp(0, 5);
-        // Re-queue this exercise at the end if not already re-queued
         if (!_requeuedIndices.contains(_currentIndex)) {
           _requeuedIndices.add(_currentIndex);
           _exercises.add(_exercises[_currentIndex]);
@@ -243,481 +246,11 @@ class _LessonScreenState extends State<LessonScreen> {
   }
 }
 
-// ─── Multiple Choice ───────────────────────────────────────────────────────
-
-class _MultipleChoice extends StatelessWidget {
-  final Map<String, dynamic> exercise;
-  final String? selectedAnswer;
-  final bool answered;
-  final void Function(String, bool) onAnswer;
-
-  const _MultipleChoice({
-    super.key,
-    required this.exercise,
-    required this.selectedAnswer,
-    required this.answered,
-    required this.onAnswer,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final options = List<String>.from(exercise['options']);
-    final correctIndex = exercise['correct'] as int;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Choose the correct answer',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-        const SizedBox(height: 12),
-        Text(exercise['prompt'],
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 32),
-        ...options.asMap().entries.map((entry) {
-          final i = entry.key;
-          final option = entry.value;
-          Color borderColor = Colors.grey[300]!;
-          Color bgColor = Colors.white;
-
-          if (answered) {
-            if (i == correctIndex) {
-              borderColor = AppColors.correct;
-              bgColor = AppColors.correct.withOpacity(0.1);
-            } else if (option == selectedAnswer) {
-              borderColor = AppColors.incorrect;
-              bgColor = AppColors.incorrect.withOpacity(0.1);
-            }
-          } else if (option == selectedAnswer) {
-            borderColor = AppColors.primary;
-            bgColor = AppColors.primary.withOpacity(0.05);
-          }
-
-          return GestureDetector(
-            onTap: answered ? null : () => onAnswer(option, i == correctIndex),
-            child: Container(
-              width: double.infinity,
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: bgColor,
-                border: Border.all(color: borderColor, width: 2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(option,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w500)),
-            ),
-          );
-        }),
-      ],
-    );
-  }
-}
-
-// ─── Tap to Build ──────────────────────────────────────────────────────────
-
-class _TapToBuild extends StatefulWidget {
-  final Map<String, dynamic> exercise;
-  final bool answered;
-  final void Function(bool) onAnswer;
-
-  const _TapToBuild(
-      {super.key, required this.exercise, required this.answered, required this.onAnswer});
-
-  @override
-  State<_TapToBuild> createState() => _TapToBuildState();
-}
-
-class _TapToBuildState extends State<_TapToBuild> {
-  final List<String> _selected = [];
-  late final List<String> _shuffledTiles;
-
-  @override
-  void initState() {
-    super.initState();
-    _shuffledTiles = List<String>.from(widget.exercise['tiles'])..shuffle();
-  }
-
-  void _tap(String word) {
-    if (widget.answered) return;
-    setState(() => _selected.add(word));
-  }
-
-  void _remove(int i) {
-    if (widget.answered) return;
-    setState(() => _selected.removeAt(i));
-  }
-
-  void _check() {
-    String normalize(String s) =>
-        s.replaceAll(RegExp(r'[.,!?;:]'), '').replaceAll(RegExp(r'\s+'), ' ').trim();
-    final answer = _selected.join(' ');
-    widget.onAnswer(normalize(answer) == normalize(widget.exercise['target'] as String));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final available =
-        _shuffledTiles.where((t) => !_selected.contains(t)).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Tap the words in the correct order',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-        const SizedBox(height: 12),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Text(widget.exercise['prompt'],
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-            ),
-            IconButton(
-              icon: const Icon(Icons.volume_up, color: AppColors.textSecondary),
-              onPressed: () => AudioService().speak(widget.exercise['target'] as String),
-              tooltip: 'Hear the answer',
-            ),
-          ],
-        ),
-        const SizedBox(height: 32),
-        Container(
-          width: double.infinity,
-          constraints: const BoxConstraints(minHeight: 60),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey[300]!, width: 2),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _selected.asMap().entries.map((e) => GestureDetector(
-              onTap: () => _remove(e.key),
-              child: Chip(
-                  label: Text(e.value),
-                  backgroundColor: AppColors.primary.withOpacity(0.15)),
-            )).toList(),
-          ),
-        ),
-        const SizedBox(height: 24),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: available
-              .map((t) => GestureDetector(
-                    onTap: () => _tap(t),
-                    child: Chip(
-                        label: Text(t),
-                        backgroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.grey)),
-                  ))
-              .toList(),
-        ),
-        const SizedBox(height: 24),
-        if (!widget.answered && _selected.isNotEmpty)
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _check,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('Check',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-// ─── Fill in the Blank ─────────────────────────────────────────────────────
-
-class _FillBlank extends StatefulWidget {
-  final Map<String, dynamic> exercise;
-  final bool answered;
-  final void Function(bool) onAnswer;
-
-  const _FillBlank(
-      {super.key, required this.exercise, required this.answered, required this.onAnswer});
-
-  @override
-  State<_FillBlank> createState() => _FillBlankState();
-}
-
-class _FillBlankState extends State<_FillBlank> {
-  final _controller = TextEditingController();
-  bool _isCorrect = false;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _check() {
-    final answer = _controller.text.trim().toLowerCase();
-    final correct =
-        answer == (widget.exercise['correct'] as String).toLowerCase();
-    setState(() => _isCorrect = correct);
-    widget.onAnswer(correct);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final sentence = widget.exercise['sentence'] as String;
-    final hint = widget.exercise['hint'] as String?;
-    final correct = widget.exercise['correct'] as String;
-    final parts = sentence.split('___');
-
-    Color fieldColor = Colors.white;
-    if (widget.answered) {
-      fieldColor = _isCorrect
-          ? AppColors.correct.withOpacity(0.1)
-          : AppColors.incorrect.withOpacity(0.1);
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Fill in the blank',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-        const SizedBox(height: 32),
-        Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            if (parts[0].isNotEmpty)
-              Text(parts[0],
-                  style: const TextStyle(
-                      fontSize: 22, fontWeight: FontWeight.bold)),
-            Container(
-              width: 120,
-              height: 48,
-              decoration: BoxDecoration(
-                color: fieldColor,
-                border: Border.all(
-                    color: widget.answered
-                        ? (_isCorrect ? AppColors.correct : AppColors.incorrect)
-                        : AppColors.primary,
-                    width: 2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: widget.answered
-                  ? Center(
-                      child: Text(
-                        _isCorrect ? _controller.text.trim() : correct,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: _isCorrect ? AppColors.correct : AppColors.incorrect,
-                        ),
-                      ),
-                    )
-                  : TextField(
-                      controller: _controller,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
-                      decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.zero),
-                      onSubmitted: (_) => _check(),
-                    ),
-            ),
-            if (parts.length > 1 && parts[1].isNotEmpty)
-              Text(parts[1],
-                  style: const TextStyle(
-                      fontSize: 22, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        if (hint != null) ...[
-          const SizedBox(height: 16),
-          Text('Hint: $hint',
-              style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontStyle: FontStyle.italic,
-                  fontSize: 14)),
-        ],
-        const SizedBox(height: 32),
-        if (!widget.answered)
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _check,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('Check',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-// ─── Conjugation Table ─────────────────────────────────────────────────────
-
-class _ConjugationTable extends StatefulWidget {
-  final Map<String, dynamic> exercise;
-  final bool answered;
-  final void Function(bool) onAnswer;
-
-  const _ConjugationTable(
-      {super.key, required this.exercise, required this.answered, required this.onAnswer});
-
-  @override
-  State<_ConjugationTable> createState() => _ConjugationTableState();
-}
-
-class _ConjugationTableState extends State<_ConjugationTable> {
-  late final List<TextEditingController> _controllers;
-
-  @override
-  void initState() {
-    super.initState();
-    final count = (widget.exercise['pronouns'] as List).length;
-    _controllers = List.generate(count, (_) => TextEditingController());
-  }
-
-  @override
-  void dispose() {
-    for (final c in _controllers) c.dispose();
-    super.dispose();
-  }
-
-  void _check() {
-    final answers = List<String>.from(widget.exercise['answers']);
-    bool allCorrect = true;
-    for (int i = 0; i < _controllers.length; i++) {
-      if (_controllers[i].text.trim().toLowerCase() !=
-          answers[i].toLowerCase()) {
-        allCorrect = false;
-        break;
-      }
-    }
-    widget.onAnswer(allCorrect);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final verb = widget.exercise['verb'] as String;
-    final tense = widget.exercise['tense'] as String;
-    final pronouns = List<String>.from(widget.exercise['pronouns']);
-    final answers = List<String>.from(widget.exercise['answers']);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Complete the conjugation table',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-        const SizedBox(height: 12),
-        Text('$verb — $tense',
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 24),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey[200]!),
-          ),
-          child: Column(
-            children: pronouns.asMap().entries.map((entry) {
-              final i = entry.key;
-              final pronoun = entry.value;
-              final isLast = i == pronouns.length - 1;
-              final isCorrect = widget.answered &&
-                  _controllers[i].text.trim().toLowerCase() ==
-                      answers[i].toLowerCase();
-
-              return Container(
-                decoration: BoxDecoration(
-                  border: isLast
-                      ? null
-                      : Border(
-                          bottom:
-                              BorderSide(color: Colors.grey[200]!, width: 1)),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 100,
-                      child: Text(pronoun,
-                          style: const TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500)),
-                    ),
-                    Expanded(
-                      child: widget.answered
-                          ? Text(
-                              answers[i],
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: isCorrect
-                                    ? AppColors.correct
-                                    : AppColors.incorrect,
-                              ),
-                            )
-                          : TextField(
-                              controller: _controllers[i],
-                              style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w500),
-                              decoration: InputDecoration(
-                                hintText: '...',
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8)),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 8),
-                                isDense: true,
-                              ),
-                            ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-        const SizedBox(height: 24),
-        if (!widget.answered)
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _check,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('Check',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
 // ─── Answer Footer ─────────────────────────────────────────────────────────
 
-class _AnswerFooter extends StatelessWidget {
+enum _SpeakState { idle, listening, result }
+
+class _AnswerFooter extends StatefulWidget {
   final bool correct;
   final String correctAnswer;
   final String explanation;
@@ -733,83 +266,215 @@ class _AnswerFooter extends StatelessWidget {
   });
 
   @override
+  State<_AnswerFooter> createState() => _AnswerFooterState();
+}
+
+class _AnswerFooterState extends State<_AnswerFooter> {
+  final _stt = SpeechToText();
+  _SpeakState _speakState = _SpeakState.idle;
+  double _score = 0;
+  bool _sttAvailable = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.speakText.isNotEmpty) _initStt();
+  }
+
+  Future<void> _initStt() async {
+    final available = await _stt.initialize(
+      onStatus: (status) {
+        if (!mounted) return;
+        if ((status == 'done' || status == 'notListening') &&
+            _speakState == _SpeakState.listening) {
+          setState(() => _speakState = _SpeakState.idle);
+        }
+      },
+    );
+    if (mounted) setState(() => _sttAvailable = available);
+  }
+
+  Future<void> _startListening() async {
+    setState(() => _speakState = _SpeakState.listening);
+    await _stt.listen(
+      onResult: (result) {
+        if (!result.finalResult || !mounted) return;
+        final score = StringSimilarity.compareTwoStrings(
+          widget.speakText.toLowerCase(),
+          result.recognizedWords.toLowerCase(),
+        );
+        setState(() {
+          _score = score;
+          _speakState = _SpeakState.result;
+        });
+      },
+      listenFor: const Duration(seconds: 7),
+      pauseFor: const Duration(seconds: 3),
+      localeId: 'de_DE',
+    );
+  }
+
+  @override
+  void dispose() {
+    _stt.cancel();
+    super.dispose();
+  }
+
+  Widget _buildSpeakRow() {
+    switch (_speakState) {
+      case _SpeakState.idle:
+        return Row(
+          children: [
+            const Text('Say it aloud:',
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: _startListening,
+              child: const Icon(Icons.mic, color: AppColors.primary, size: 22),
+            ),
+          ],
+        );
+      case _SpeakState.listening:
+        return const Row(
+          children: [
+            SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(
+                  strokeWidth: 2, color: AppColors.primary),
+            ),
+            SizedBox(width: 8),
+            Text('Listening…',
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+          ],
+        );
+      case _SpeakState.result:
+        final label = _score >= 0.85
+            ? 'Excellent!'
+            : _score >= 0.6
+                ? 'Good try!'
+                : 'Keep practicing';
+        final color = _score >= 0.85
+            ? AppColors.correct
+            : _score >= 0.6
+                ? AppColors.xpGold
+                : AppColors.incorrect;
+        return Row(
+          children: [
+            Icon(Icons.record_voice_over, color: color, size: 18),
+            const SizedBox(width: 6),
+            Text(label,
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: color)),
+            const SizedBox(width: 4),
+            GestureDetector(
+              onTap: () => setState(() => _speakState = _SpeakState.idle),
+              child: const Icon(Icons.refresh,
+                  size: 16, color: AppColors.textSecondary),
+            ),
+          ],
+        );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      color: correct
+      color: widget.correct
           ? AppColors.correct.withOpacity(0.1)
           : AppColors.incorrect.withOpacity(0.1),
       padding: const EdgeInsets.all(24),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-              correct ? Icons.check_circle : Icons.cancel,
-              color: correct ? AppColors.correct : AppColors.incorrect,
-              size: 32),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                  widget.correct ? Icons.check_circle : Icons.cancel,
+                  color: widget.correct ? AppColors.correct : AppColors.incorrect,
+                  size: 32),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      correct ? 'Correct! +10 XP' : 'Not quite!',
-                      style: TextStyle(
-                        color: correct ? AppColors.correct : AppColors.incorrect,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          widget.correct ? 'Correct! +10 XP' : 'Not quite!',
+                          style: TextStyle(
+                            color: widget.correct
+                                ? AppColors.correct
+                                : AppColors.incorrect,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        if (widget.speakText.isNotEmpty) ...[
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () => AudioService().speak(widget.speakText),
+                            child: Icon(Icons.volume_up,
+                                color: widget.correct
+                                    ? AppColors.correct
+                                    : AppColors.incorrect,
+                                size: 22),
+                          ),
+                        ],
+                      ],
                     ),
-                    if (speakText.isNotEmpty) ...[
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () => AudioService().speak(speakText),
-                        child: Icon(Icons.volume_up,
-                            color: correct ? AppColors.correct : AppColors.incorrect,
-                            size: 22),
+                    if (!widget.correct && widget.correctAnswer.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        'Correct answer: ${widget.correctAnswer}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                    if (!widget.correct && widget.explanation.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.explanation,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
                     ],
                   ],
                 ),
-                if (!correct && correctAnswer.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    'Correct answer: $correctAnswer',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-                if (!correct && explanation.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    explanation,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
-              ],
-            ),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton(
+                onPressed: widget.onNext,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      widget.correct ? AppColors.correct : AppColors.incorrect,
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Next',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          ElevatedButton(
-            onPressed: onNext,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: correct ? AppColors.correct : AppColors.incorrect,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+          if (widget.speakText.isNotEmpty && _sttAvailable) ...[
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: _buildSpeakRow(),
             ),
-            child: const Text('Next',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
+          ],
         ],
       ),
     );

@@ -45,4 +45,18 @@ class ProgressService {
     final box = await Hive.openBox(_boxName);
     return box.keys.whereType<String>().toSet();
   }
+
+  static String _todayPrefix() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
+
+  static Future<int> todayXp() async {
+    final progress = await allProgress();
+    final prefix = _todayPrefix();
+    return progress.values.fold<int>(0, (sum, v) {
+      final at = v['completedAt'] as String? ?? '';
+      return at.startsWith(prefix) ? sum + (v['xp'] as int? ?? 0) : sum;
+    });
+  }
 }

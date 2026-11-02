@@ -17,6 +17,18 @@ _(none)_
 
 ## Completed
 
+### ✅ 10. Pronunciation feedback
+- After each exercise is answered, show a mic button in the answer footer (when speakText is non-empty)
+- Uses `speech_to_text` package (already in pubspec.yaml) to record the user saying the phrase
+- Scores the attempt using `string_similarity` (already in pubspec.yaml): >= 0.85 → "Excellent!", >= 0.6 → "Good try!", else "Keep practicing"
+- Shows a refresh icon to retry; falls back silently if STT is unavailable on the device
+- Split `lesson_screen.dart` (817 lines) into `lesson_screen.dart` + `exercise_widgets.dart` using Dart `part`/`part of`
+
+### ✅ 9. Daily XP progress bar
+- Added `ProgressService.todayXp()` — sums XP from lessons completed today (by checking `completedAt` date prefix)
+- Home screen loads today's XP and reads `dailyGoalXp` from Hive `'settings'` box (set during onboarding)
+- Added `_DailyGoalBar` widget below the level bar: shows "Today's goal" label, progress bar toward daily goal, XP count, and a checkmark + "Daily goal complete!" when the goal is met
+
 ### ✅ 8. Firebase Auth
 - Wire up the existing Firebase packages (firebase_core, firebase_auth are in pubspec.yaml)
 - Requires a real Firebase project — add a note in code: "TODO: add google-services.json / GoogleService-Info.plist"

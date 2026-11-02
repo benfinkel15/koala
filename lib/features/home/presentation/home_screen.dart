@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:koala/core/constants/app_colors.dart';
 import 'package:koala/services/curriculum_generator.dart';
@@ -19,6 +20,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _error;
   Map<String, int> _progressStars = {};
   int _totalXp = 0;
+  int _todayXp = 0;
+  int _dailyGoal = 20;
   int _currentStreak = 0;
 
   @override
@@ -38,10 +41,15 @@ class _HomeScreenState extends State<HomeScreen> {
       if (s != null) stars[entry.key] = s;
       xp += entry.value['xp'] as int? ?? 0;
     }
+    final todayXp = await ProgressService.todayXp();
+    final settingsBox = await Hive.openBox('settings');
+    final dailyGoal = settingsBox.get('dailyGoalXp') as int? ?? 20;
     if (mounted) {
       setState(() {
         _progressStars = stars;
         _totalXp = xp;
+        _todayXp = todayXp;
+        _dailyGoal = dailyGoal;
       });
     }
   }
@@ -251,6 +259,8 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       children: [
         _XpProgressBar(xp: xpInLevel, levelXp: 100, level: level),
+        const SizedBox(height: 12),
+        _DailyGoalBar(todayXp: _todayXp, goalXp: _dailyGoal),
         const SizedBox(height: 24),
         ...units.asMap().entries.map((entry) {
           final color =
@@ -299,6 +309,58 @@ class _XpProgressBar extends StatelessWidget {
             minHeight: 10,
             backgroundColor: Colors.grey[300],
             valueColor: const AlwaysStoppedAnimation(AppColors.xpGold),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DailyGoalBar extends StatelessWidget {
+  final int todayXp;
+  final int goalXp;
+
+  const _DailyGoalBar({required this.todayXp, required this.goalXp});
+
+  @override
+  Widget build(BuildContext context) {
+    final done = todayXp >= goalXp;
+    final progress = (todayXp / goalXp).clamp(0.0, 1.0);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              done ? 'Daily goal complete!' : 'Daily goal',
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textSecondary),
+            ),
+            Row(
+              children: [
+                if (done) ...[
+                  const Icon(Icons.check_circle,
+                      color: AppColors.correct, size: 14),
+                  const SizedBox(width: 4),
+                ],
+                Text('$todayXp / $goalXp XP',
+                    style: const TextStyle(
+                        color: AppColors.textSecondary, fontSize: 12)),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(
+            value: progress,
+            minHeight: 10,
+            backgroundColor: Colors.grey[300],
+            valueColor: AlwaysStoppedAnimation(
+                done ? AppColors.correct : AppColors.accent),
           ),
         ),
       ],
