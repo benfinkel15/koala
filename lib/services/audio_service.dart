@@ -24,6 +24,10 @@ class AudioService {
     await playBytes(bytes);
   }
 
+  Future<void> prefetch(List<String> texts, {String langCode = 'de'}) async {
+    await Future.wait(texts.map((t) => _fetchAudio(t, langCode)));
+  }
+
   Future<void> stop() async {
     _stopRequested = true;
     await stopPlayback();

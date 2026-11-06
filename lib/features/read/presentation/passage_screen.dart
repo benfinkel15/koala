@@ -19,6 +19,7 @@ class PassageScreen extends StatefulWidget {
 class _PassageScreenState extends State<PassageScreen> {
   GermanPassage? _passage;
   bool _playing = false;
+  bool _buffering = false;
   int _currentSentence = -1;
 
   String get _langCode => _passage?.language ?? 'de';
@@ -33,14 +34,19 @@ class _PassageScreenState extends State<PassageScreen> {
   }
 
   Future<void> _togglePlay() async {
-    if (_playing) {
+    if (_playing || _buffering) {
       await AudioService().stop();
-      if (mounted) setState(() { _playing = false; _currentSentence = -1; });
+      if (mounted) setState(() { _playing = false; _buffering = false; _currentSentence = -1; });
       return;
     }
 
     if (_passage == null) return;
-    setState(() { _playing = true; _currentSentence = 0; });
+    setState(() { _buffering = true; });
+
+    await AudioService().prefetch(_passage!.sentences, langCode: _langCode);
+
+    if (!mounted) return;
+    setState(() { _buffering = false; _playing = true; _currentSentence = 0; });
 
     for (int i = 0; i < _passage!.sentences.length; i++) {
       if (!_playing || !mounted) break;
@@ -81,12 +87,17 @@ class _PassageScreenState extends State<PassageScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: IconButton(
-              icon: Icon(_playing ? Icons.stop_circle : Icons.play_circle,
-                  color: AppColors.primary, size: 32),
-              onPressed: _togglePlay,
-              tooltip: _playing ? 'Stop' : 'Read aloud',
-            ),
+            child: _buffering
+                ? const SizedBox(
+                    width: 32, height: 32,
+                    child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.primary),
+                  )
+                : IconButton(
+                    icon: Icon(_playing ? Icons.stop_circle : Icons.play_circle,
+                        color: AppColors.primary, size: 32),
+                    onPressed: _togglePlay,
+                    tooltip: _playing ? 'Stop' : 'Read aloud',
+                  ),
           ),
         ],
       ),
