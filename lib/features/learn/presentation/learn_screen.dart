@@ -387,6 +387,41 @@ const allScenarios = [
         'You are a Polish landlord showing an apartment to a potential tenant. Speak only in Polish. After every response add a blank line then an English translation in italics (prefix with "🇵🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Wskazówka:". Keep responses short — 1 to 3 sentences.',
   ),
 
+  // ─── Georgian ─────────────────────────────────────────────────────────────
+  ScenarioConfig(
+    id: 'ka_cafe',
+    language: 'ka',
+    title: 'Tbilisi Café',
+    description: 'Order coffee and pastries at a traditional Tbilisi café',
+    character: 'Georgian café waiter',
+    difficulty: 'Beginner',
+    icon: Icons.coffee,
+    systemPrompt:
+        'You are a friendly waiter at a traditional Georgian café in Tbilisi called "Kolkhuri". Speak Georgian with the phonetic pronunciation in brackets after each phrase, e.g. "გამარჯობა [gamarjoba]!", then add a blank line with an English translation prefixed with "🇬🇪 ". Gently correct mistakes with "💡 Tip:". Keep responses 1-3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'ka_market',
+    language: 'ka',
+    title: 'Dezerter Bazaar',
+    description: 'Shop for spices and local produce at Tbilisi\'s famous market',
+    character: 'Market vendor',
+    difficulty: 'Beginner',
+    icon: Icons.storefront,
+    systemPrompt:
+        'You are a cheerful vendor at the famous Dezerter Bazaar in Tbilisi, selling fresh spices, vegetables, and local produce. Speak Georgian with the phonetic pronunciation in brackets after each phrase, e.g. "გამარჯობა [gamarjoba]!", then add a blank line with an English translation prefixed with "🇬🇪 ". Gently correct mistakes with "💡 Tip:". Keep responses 1-3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'ka_supra',
+    language: 'ka',
+    title: 'Georgian Supra',
+    description: 'Join a Georgian feast, learn toasts, and meet the tamada',
+    character: 'Georgian host',
+    difficulty: 'Intermediate',
+    icon: Icons.dinner_dining,
+    systemPrompt:
+        'You are a warm and welcoming Georgian host at a traditional supra (feast). You are the tamada — toastmaster — and you guide your guest through Georgian food, wine, and customs. Speak Georgian with the phonetic pronunciation in brackets after each phrase, e.g. "გაუმარჯოს! [gaumarjos!]", then add a blank line with an English translation prefixed with "🇬🇪 ". Gently correct mistakes with "💡 Tip:". Keep responses 1-3 sentences.',
+  ),
+
   // ─── Dutch ────────────────────────────────────────────────────────────────
   ScenarioConfig(
     id: 'nl_cafe',
@@ -573,6 +608,8 @@ class _LanguagePicker extends StatelessWidget {
           _LangChip(flag: '🇩🇰', label: 'Danish', code: 'da', selected: selected, onTap: onSelect),
           const SizedBox(width: 8),
           _LangChip(flag: '🇮🇩', label: 'Indonesian', code: 'id', selected: selected, onTap: onSelect),
+          const SizedBox(width: 8),
+          _LangChip(flag: '🇬🇪', label: 'Georgian', code: 'ka', selected: selected, onTap: onSelect),
           const SizedBox(width: 8),
           _LangChip(flag: '🇵🇱', label: 'Polish', code: 'pl', selected: selected, onTap: onSelect),
         ],

@@ -20,6 +20,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ('Dutch', 'nl', '🇳🇱'),
     ('Danish', 'da', '🇩🇰'),
     ('Indonesian', 'id', '🇮🇩'),
+    ('Georgian', 'ka', '🇬🇪'),
     ('Spanish', 'es', '🇪🇸'),
     ('French', 'fr', '🇫🇷'),
     ('Italian', 'it', '🇮🇹'),

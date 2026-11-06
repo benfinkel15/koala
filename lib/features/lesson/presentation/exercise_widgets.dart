@@ -132,7 +132,7 @@ class _TapToBuildState extends State<_TapToBuild> {
             ),
             IconButton(
               icon: const Icon(Icons.volume_up, color: AppColors.textSecondary),
-              onPressed: () => AudioService().speak(widget.exercise['target'] as String),
+              onPressed: () => AudioService().speak(widget.exercise['ttsText'] as String? ?? widget.exercise['target'] as String),
               tooltip: 'Hear the answer',
             ),
           ],

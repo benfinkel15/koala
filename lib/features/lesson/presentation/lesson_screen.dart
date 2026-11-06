@@ -198,7 +198,7 @@ class _LessonScreenState extends State<LessonScreen> {
             final options = List<String>.from(exercise['options']);
             final correctText = options[exercise['correct'] as int];
             final explanation = exercise['explanation'] as String? ?? '';
-            _onAnswer(correct, correctAnswer: correctText, explanation: explanation, speakText: correctText);
+            _onAnswer(correct, correctAnswer: correctText, explanation: explanation, speakText: exercise['ttsText'] as String? ?? correctText);
           },
         );
       case 'tapToBuild':
@@ -209,7 +209,7 @@ class _LessonScreenState extends State<LessonScreen> {
           onAnswer: (correct) {
             final explanation = exercise['explanation'] as String? ?? '';
             final target = exercise['target'] as String;
-            _onAnswer(correct, correctAnswer: target, explanation: explanation, speakText: target);
+            _onAnswer(correct, correctAnswer: target, explanation: explanation, speakText: exercise['ttsText'] as String? ?? target);
           },
         );
       case 'fillBlank':
@@ -221,7 +221,7 @@ class _LessonScreenState extends State<LessonScreen> {
             final explanation = exercise['explanation'] as String? ?? '';
             final correctWord = exercise['correct'] as String;
             final fullSentence = (exercise['sentence'] as String).replaceFirst('___', correctWord);
-            _onAnswer(correct, correctAnswer: correctWord, explanation: explanation, speakText: fullSentence);
+            _onAnswer(correct, correctAnswer: correctWord, explanation: explanation, speakText: exercise['ttsText'] as String? ?? fullSentence);
           },
         );
       case 'conjugationTable':

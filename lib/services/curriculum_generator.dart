@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:koala/content/danish/curriculum.dart';
 import 'package:koala/content/dutch/curriculum.dart';
+import 'package:koala/content/georgian/curriculum.dart';
 import 'package:koala/content/german/curriculum.dart';
 import 'package:koala/content/indonesian/curriculum.dart';
 
@@ -23,6 +24,7 @@ const supportedLanguages = [
   LanguageInfo(code: 'nl', name: 'Dutch', nativeName: 'Nederlands'),
   LanguageInfo(code: 'da', name: 'Danish', nativeName: 'Dansk'),
   LanguageInfo(code: 'id', name: 'Indonesian', nativeName: 'Bahasa Indonesia'),
+  LanguageInfo(code: 'ka', name: 'Georgian', nativeName: 'ქართული'),
   LanguageInfo(code: 'es', name: 'Spanish', nativeName: 'Español'),
   LanguageInfo(code: 'fr', name: 'French', nativeName: 'Français'),
   LanguageInfo(code: 'it', name: 'Italian', nativeName: 'Italiano'),
@@ -123,6 +125,12 @@ class CurriculumService {
     if (code == 'id') {
       _currentCode = 'id';
       _current = CurriculumData(units: _indonesianUnits, exercises: indonesianLessonExercises);
+      return _current!;
+    }
+
+    if (code == 'ka') {
+      _currentCode = 'ka';
+      _current = CurriculumData(units: georgianUnits, exercises: georgianLessonExercises);
       return _current!;
     }
 
