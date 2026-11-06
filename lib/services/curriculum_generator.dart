@@ -96,6 +96,11 @@ class CurriculumService {
   String get currentCode => _currentCode;
   CurriculumData? get current => _current;
 
+  String phoneticToScript(String word) {
+    if (_currentCode == 'ka') return georgianPhonetics[word] ?? word;
+    return word;
+  }
+
   void _loadGerman() {
     _currentCode = 'de';
     _current = CurriculumData(units: _germanUnits, exercises: lessonExercises);

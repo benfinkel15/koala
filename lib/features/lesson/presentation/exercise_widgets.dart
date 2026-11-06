@@ -98,6 +98,8 @@ class _TapToBuildState extends State<_TapToBuild> {
   void _tap(String word) {
     if (widget.answered) return;
     setState(() => _selected.add(word));
+    final script = CurriculumService().phoneticToScript(word);
+    AudioService().speak(script, langCode: CurriculumService().currentCode);
   }
 
   void _remove(int i) {
