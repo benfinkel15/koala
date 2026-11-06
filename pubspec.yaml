@@ -29,7 +29,6 @@ dependencies:
 
   # Audio & speech
   just_audio: ^0.9.42
-  flutter_tts: ^4.2.0
   speech_to_text: ^7.0.0
 
   # String matching (speak exercise scoring)

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:koala/content/danish/passages.dart';
 import 'package:koala/content/dutch/passages.dart';
 import 'package:koala/content/german/passages.dart';
 import 'package:koala/content/indonesian/passages.dart';
 import 'package:koala/core/constants/app_colors.dart';
+import 'package:koala/services/audio_service.dart';
 import 'package:koala/widgets/word_drill_sheet.dart';
 
 class PassageScreen extends StatefulWidget {
@@ -17,11 +17,9 @@ class PassageScreen extends StatefulWidget {
 
 class _PassageScreenState extends State<PassageScreen> {
   GermanPassage? _passage;
-  final FlutterTts _tts = FlutterTts();
   bool _playing = false;
   int _currentSentence = -1;
 
-  String get _ttsLocale => _passage?.language == 'nl' ? 'nl-NL' : _passage?.language == 'da' ? 'da-DK' : _passage?.language == 'id' ? 'id-ID' : 'de-DE';
   String get _langCode => _passage?.language ?? 'de';
 
   @override
@@ -31,40 +29,30 @@ class _PassageScreenState extends State<PassageScreen> {
       _passage = [...germanPassages, ...dutchPassages, ...danishPassages, ...indonesianPassages]
           .firstWhere((p) => p.id == widget.passageId);
     } catch (_) {}
-    _initTts();
-  }
-
-  Future<void> _initTts() async {
-    await _tts.setLanguage(_ttsLocale);
-    await _tts.setSpeechRate(0.72);
-    await _tts.setVolume(1.0);
-    _tts.setCompletionHandler(() {
-      if (!mounted) return;
-      final next = _currentSentence + 1;
-      if (next < (_passage?.sentences.length ?? 0)) {
-        setState(() => _currentSentence = next);
-        _tts.speak(_passage!.sentences[next]);
-      } else {
-        setState(() { _playing = false; _currentSentence = -1; });
-      }
-    });
   }
 
   Future<void> _togglePlay() async {
     if (_playing) {
-      await _tts.stop();
-      setState(() { _playing = false; _currentSentence = -1; });
-    } else {
-      if (_passage == null) return;
-      await _tts.setLanguage(_ttsLocale);
-      setState(() { _playing = true; _currentSentence = 0; });
-      await _tts.speak(_passage!.sentences[0]);
+      await AudioService().stop();
+      if (mounted) setState(() { _playing = false; _currentSentence = -1; });
+      return;
     }
+
+    if (_passage == null) return;
+    setState(() { _playing = true; _currentSentence = 0; });
+
+    for (int i = 0; i < _passage!.sentences.length; i++) {
+      if (!_playing || !mounted) break;
+      if (mounted) setState(() => _currentSentence = i);
+      await AudioService().speak(_passage!.sentences[i], langCode: _langCode);
+    }
+
+    if (mounted) setState(() { _playing = false; _currentSentence = -1; });
   }
 
   @override
   void dispose() {
-    _tts.stop();
+    AudioService().stop();
     super.dispose();
   }
 

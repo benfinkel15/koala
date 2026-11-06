@@ -297,6 +297,96 @@ const allScenarios = [
         'You are a Danish landlord showing an apartment to a potential tenant. Speak only in Danish. After every response add a blank line then an English translation in italics (prefix with "🇩🇰 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Tip:". Keep responses short — 1 to 3 sentences.',
   ),
 
+  // ─── Polish ───────────────────────────────────────────────────────────────
+  ScenarioConfig(
+    id: 'pl_cafe',
+    language: 'pl',
+    title: 'W kawiarni',
+    description: 'Zamów kawę i ciasto u miłego kelnera',
+    character: 'Polish café waiter',
+    difficulty: 'Beginner',
+    icon: Icons.coffee,
+    systemPrompt:
+        'You are a friendly waiter at a cozy Polish café called "Kawiarnia Pod Lipami". Speak only in Polish. After every response add a blank line then an English translation in italics (prefix with "🇵🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Wskazówka:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'pl_meeting',
+    language: 'pl',
+    title: 'Poznawanie kogoś',
+    description: 'Przedstaw się i poznaj nową osobę',
+    character: 'Polish acquaintance',
+    difficulty: 'Beginner',
+    icon: Icons.waving_hand,
+    systemPrompt:
+        'You are a friendly Polish person meeting someone new at a neighbourhood event. Speak only in Polish. After every response add a blank line then an English translation in italics (prefix with "🇵🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Wskazówka:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'pl_market',
+    language: 'pl',
+    title: 'Na targu',
+    description: 'Kup świeże owoce i warzywa na targu',
+    character: 'Market vendor',
+    difficulty: 'Beginner',
+    icon: Icons.storefront,
+    systemPrompt:
+        'You are a cheerful vendor at a Polish market (targ) selling fresh fruit and vegetables. Speak only in Polish. After every response add a blank line then an English translation in italics (prefix with "🇵🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Wskazówka:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'pl_train',
+    language: 'pl',
+    title: 'Na dworcu',
+    description: 'Kup bilet i znajdź swój peron',
+    character: 'PKP station staff',
+    difficulty: 'Intermediate',
+    icon: Icons.train,
+    systemPrompt:
+        'You are a helpful ticket agent at a Polish train station (PKP — Polskie Koleje Państwowe). Speak only in Polish. After every response add a blank line then an English translation in italics (prefix with "🇵🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Wskazówka:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'pl_plans',
+    language: 'pl',
+    title: 'Planowanie spotkania',
+    description: 'Umów się z przyjacielem na weekend',
+    character: 'Polish friend',
+    difficulty: 'Intermediate',
+    icon: Icons.calendar_today,
+    systemPrompt:
+        'You are a good Polish friend making plans for the weekend. Speak only in Polish. After every response add a blank line then an English translation in italics (prefix with "🇵🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Wskazówka:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'pl_doctor',
+    language: 'pl',
+    title: 'U lekarza',
+    description: 'Opisz swoje objawy polskiemu lekarzowi',
+    character: 'Lekarz pierwszego kontaktu',
+    difficulty: 'Intermediate',
+    icon: Icons.local_hospital,
+    systemPrompt:
+        'You are a friendly lekarz pierwszego kontaktu (GP) at a Polish medical clinic. Speak only in Polish. After every response add a blank line then an English translation in italics (prefix with "🇵🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Wskazówka:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'pl_interview',
+    language: 'pl',
+    title: 'Rozmowa kwalifikacyjna',
+    description: 'Odpowiedz na pytania o sobie i swoim doświadczeniu',
+    character: 'HR manager',
+    difficulty: 'Advanced',
+    icon: Icons.work,
+    systemPrompt:
+        'You are a professional HR manager at a Polish company conducting a job interview. Speak only in Polish. After every response add a blank line then an English translation in italics (prefix with "🇵🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Wskazówka:". Keep responses short — 1 to 3 sentences.',
+  ),
+  ScenarioConfig(
+    id: 'pl_apartment',
+    language: 'pl',
+    title: 'Wynajem mieszkania',
+    description: 'Obejrzyj mieszkanie i omów szczegóły',
+    character: 'Wynajmujący',
+    difficulty: 'Advanced',
+    icon: Icons.apartment,
+    systemPrompt:
+        'You are a Polish landlord showing an apartment to a potential tenant. Speak only in Polish. After every response add a blank line then an English translation in italics (prefix with "🇵🇱 "). If the user makes a grammar mistake, respond naturally first, then gently note the correction at the end with "💡 Wskazówka:". Keep responses short — 1 to 3 sentences.',
+  ),
+
   // ─── Dutch ────────────────────────────────────────────────────────────────
   ScenarioConfig(
     id: 'nl_cafe',
@@ -483,6 +573,8 @@ class _LanguagePicker extends StatelessWidget {
           _LangChip(flag: '🇩🇰', label: 'Danish', code: 'da', selected: selected, onTap: onSelect),
           const SizedBox(width: 8),
           _LangChip(flag: '🇮🇩', label: 'Indonesian', code: 'id', selected: selected, onTap: onSelect),
+          const SizedBox(width: 8),
+          _LangChip(flag: '🇵🇱', label: 'Polish', code: 'pl', selected: selected, onTap: onSelect),
         ],
       ),
     );
