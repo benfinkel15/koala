@@ -364,13 +364,18 @@ class _InputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hint = language == 'nl'
-        ? 'Schrijf in het Nederlands…'
-        : language == 'da'
-            ? 'Skriv på dansk…'
-            : language == 'id'
-                ? 'Tulis dalam Bahasa Indonesia…'
-                : 'Schreib auf Deutsch…';
+    final hint = {
+      'de': 'Schreib auf Deutsch…',
+      'nl': 'Schrijf in het Nederlands…',
+      'da': 'Skriv på dansk…',
+      'id': 'Tulis dalam Bahasa Indonesia…',
+      'ka': 'Write in Georgian (or phonetics)…',
+      'pl': 'Napisz po polsku…',
+      'es': 'Escribe en español…',
+      'fr': 'Écris en français…',
+      'it': 'Scrivi in italiano…',
+      'ja': '日本語で書いてください…',
+    }[language] ?? 'Type your reply…';
     return Container(
       color: AppColors.surface,
       padding: EdgeInsets.only(

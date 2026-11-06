@@ -65,7 +65,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _restoreLanguage() async {
     final prefs = await SharedPreferences.getInstance();
-    final savedCode = prefs.getString('selected_language') ?? 'de';
+    String savedCode = prefs.getString('selected_language') ?? '';
+    if (savedCode.isEmpty) {
+      final box = await Hive.openBox('settings');
+      savedCode = box.get('onboardingLanguage') as String? ?? 'de';
+      if (savedCode != 'de') {
+        await prefs.setString('selected_language', savedCode);
+      }
+    }
     if (savedCode == 'de' || !mounted) return;
     final lang = supportedLanguages.firstWhere(
       (l) => l.code == savedCode,

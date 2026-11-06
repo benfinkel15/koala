@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:koala/core/constants/app_colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -28,10 +29,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   ];
 
   Future<void> _completeOnboarding() async {
+    final langCode = _selectedLanguage ?? 'de';
     final box = await Hive.openBox('settings');
     await box.put('onboardingComplete', true);
     await box.put('dailyGoalXp', _selectedGoalXp ?? 20);
-    await box.put('onboardingLanguage', _selectedLanguage ?? 'de');
+    await box.put('onboardingLanguage', langCode);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selected_language', langCode);
     if (mounted) context.go('/home');
   }
 
