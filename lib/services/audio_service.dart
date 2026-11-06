@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
-import 'package:just_audio/just_audio.dart';
+import 'audio_player_stub.dart'
+    if (dart.library.html) 'audio_player_web.dart';
 
 class AudioService {
   static final AudioService _instance = AudioService._internal();
   factory AudioService() => _instance;
   AudioService._internal();
 
-  final AudioPlayer _player = AudioPlayer();
   final Map<String, Uint8List> _cache = {};
   bool _stopRequested = false;
 
@@ -16,25 +16,18 @@ class AudioService {
 
   Future<void> speak(String text, {String langCode = 'de'}) async {
     _stopRequested = false;
-    await _player.stop();
+    await stopPlayback();
 
     final bytes = await _fetchAudio(text, langCode);
     if (bytes == null || _stopRequested) return;
 
-    try {
-      final base64Audio = base64Encode(bytes);
-      final uri = Uri.parse('data:audio/mpeg;base64,$base64Audio');
-      await _player.setAudioSource(AudioSource.uri(uri));
-      await _player.play();
-    } catch (_) {}
+    await playBytes(bytes);
   }
 
   Future<void> stop() async {
     _stopRequested = true;
-    await _player.stop();
+    await stopPlayback();
   }
-
-  bool get isPlaying => _player.playing;
 
   Future<Uint8List?> _fetchAudio(String text, String langCode) async {
     final key = '$langCode|$text';
